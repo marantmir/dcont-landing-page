@@ -3,72 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DCont - Portal Administrativo Seguro</title>
+    <title>DCont - Portal Administrativo</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Firebase SDK -->
-    <script type="module">
-        // Importar Firebase primeiro
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        
-        // CONFIGURE SUAS CREDENCIAIS AQUI
-        const firebaseConfig = {
-            apiKey: "SUA_API_KEY_AQUI",
-            authDomain: "SEU_PROJETO.firebaseapp.com",
-            projectId: "SEU_PROJETO_ID",
-            storageBucket: "SEU_PROJETO.appspot.com",
-            messagingSenderId: "SEU_MESSAGING_ID",
-            appId: "SEU_APP_ID"
-        };
-        
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        
-        // Verificar autenticação
-        onAuthStateChanged(auth, (user) => {
-            const loadingScreen = document.getElementById('loadingScreen');
-            const appContainer = document.getElementById('appContainer');
-            
-            if (user) {
-                // Autenticado - mostrar portal
-                document.getElementById('userEmail').textContent = user.email;
-                loadingScreen.style.display = 'none';
-                appContainer.style.display = 'grid';
-                
-                // Carregar dados de exemplo
-                window.initializeApp();
-            } else {
-                // Não autenticado - redirecionar
-                window.location.href = 'login-dcont.html';
-            }
-        });
-        
-        // Logout
-        window.logout = async () => {
-            if (confirm('Deseja realmente sair?')) {
-                try {
-                    await signOut(auth);
-                    window.location.href = 'login-dcont.html';
-                } catch (error) {
-                    alert('Erro ao sair: ' + error.message);
-                }
-            }
-        };
-    </script>
     
     <style>
         :root {
             --color-primary: #1a4d2e;
             --color-secondary: #4f772d;
             --color-accent: #d4a574;
+            --color-gold: #c9a961;
             --color-dark: #0d1f14;
             --color-bg: #f8f9fa;
+            --color-card: #ffffff;
+            --color-border: #e0e0e0;
             --color-text: #2d3748;
             --color-text-light: #718096;
             --color-success: #48bb78;
             --color-warning: #ed8936;
+            --color-danger: #f56565;
+            --color-info: #4299e1;
         }
         
         * {
@@ -81,6 +35,7 @@
             font-family: 'Inter', sans-serif;
             background: var(--color-bg);
             color: var(--color-text);
+            overflow-x: hidden;
         }
         
         /* Loading Screen */
@@ -89,14 +44,10 @@
             inset: 0;
             background: linear-gradient(135deg, var(--color-dark), var(--color-primary));
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 9999;
-        }
-        
-        .loading-content {
-            text-align: center;
-            color: white;
         }
         
         .loading-spinner {
@@ -106,7 +57,13 @@
             border-radius: 50%;
             border-top-color: white;
             animation: spin 1s linear infinite;
-            margin: 0 auto 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .loading-text {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 500;
         }
         
         @keyframes spin {
@@ -120,75 +77,94 @@
             min-height: 100vh;
         }
         
+        /* Sidebar */
         .sidebar {
             background: var(--color-dark);
             color: white;
-            padding: 2rem 0;
             position: fixed;
             height: 100vh;
             width: 280px;
             overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
         }
         
         .logo {
-            padding: 0 2rem;
-            margin-bottom: 1.5rem;
+            padding: 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
         
         .logo h1 {
-            font-size: 1.5rem;
+            font-size: 1.75rem;
             color: var(--color-accent);
+            margin-bottom: 0.25rem;
         }
         
         .logo p {
             font-size: 0.85rem;
             opacity: 0.7;
-            margin-top: 0.25rem;
         }
         
         .user-info {
-            padding: 1rem 2rem;
-            margin-bottom: 1rem;
+            padding: 1.5rem 2rem;
             background: rgba(255,255,255,0.05);
-            border-top: 1px solid rgba(255,255,255,0.1);
             border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--color-accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-bottom: 0.75rem;
         }
         
         .user-email {
             font-size: 0.85rem;
             opacity: 0.8;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
             word-break: break-all;
         }
         
         .btn-logout {
             width: 100%;
-            padding: 0.5rem;
+            padding: 0.6rem;
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.2);
             color: white;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 0.85rem;
+            font-weight: 500;
             transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
         
         .btn-logout:hover {
-            background: rgba(245,101,101,0.2);
+            background: rgba(245,101,101,0.3);
+            border-color: rgba(245,101,101,0.5);
         }
         
         .nav {
             list-style: none;
+            padding: 1rem 0;
         }
         
         .nav-item {
-            padding: 0.75rem 2rem;
+            padding: 0.875rem 2rem;
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.875rem;
             border-left: 3px solid transparent;
+            font-weight: 500;
         }
         
         .nav-item:hover {
@@ -200,24 +176,40 @@
             border-left-color: var(--color-accent);
         }
         
+        .nav-icon {
+            font-size: 1.25rem;
+        }
+        
+        /* Main Content */
         .main-content {
             margin-left: 280px;
             padding: 2rem;
+            min-height: 100vh;
         }
         
         .header {
             background: white;
-            padding: 1.5rem 2rem;
-            border-radius: 12px;
+            padding: 1.75rem 2rem;
+            border-radius: 16px;
             margin-bottom: 2rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .header h2 {
-            font-size: 1.75rem;
+            font-size: 1.875rem;
             color: var(--color-dark);
+            font-weight: 700;
         }
         
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -227,47 +219,124 @@
         
         .stat-card {
             background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
+            padding: 1.75rem;
+            border-radius: 16px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+            border: 2px solid transparent;
         }
         
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-color: var(--color-primary);
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .stat-icon.primary { background: rgba(26,77,46,0.1); }
+        .stat-icon.success { background: rgba(72,187,120,0.1); }
+        .stat-icon.warning { background: rgba(237,137,54,0.1); }
+        .stat-icon.info { background: rgba(66,153,225,0.1); }
+        
         .stat-value {
-            font-size: 2rem;
+            font-size: 2.25rem;
             font-weight: 700;
             color: var(--color-dark);
+            line-height: 1;
         }
         
         .stat-label {
             color: var(--color-text-light);
-            font-size: 0.9rem;
-            margin-top: 0.25rem;
+            font-size: 0.95rem;
+            margin-top: 0.5rem;
+            font-weight: 500;
         }
         
+        /* Content Card */
         .content-card {
             background: white;
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 2rem;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             margin-bottom: 2rem;
         }
         
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--color-border);
+        }
+        
+        .content-header h3 {
+            font-size: 1.375rem;
+            color: var(--color-dark);
+            font-weight: 700;
+        }
+        
+        /* Buttons */
         .btn {
             padding: 0.75rem 1.5rem;
-            border-radius: 8px;
+            border-radius: 10px;
             border: none;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
         
         .btn-primary {
-            background: var(--color-primary);
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
             color: white;
         }
         
         .btn-primary:hover {
-            background: var(--color-secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(26,77,46,0.3);
+        }
+        
+        .btn-secondary {
+            background: var(--color-bg);
+            color: var(--color-text);
+            border: 2px solid var(--color-border);
+        }
+        
+        .btn-secondary:hover {
+            background: white;
+            border-color: var(--color-primary);
+        }
+        
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+        
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
         }
         
         table {
@@ -275,46 +344,129 @@
             border-collapse: collapse;
         }
         
+        thead {
+            background: var(--color-bg);
+        }
+        
         th {
-            padding: 1rem;
+            padding: 1rem 1.25rem;
             text-align: left;
             font-weight: 600;
-            background: var(--color-bg);
-            font-size: 0.85rem;
+            color: var(--color-text);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         td {
-            padding: 1rem;
-            border-bottom: 1px solid #e0e0e0;
+            padding: 1rem 1.25rem;
+            border-top: 1px solid var(--color-border);
         }
         
-        .view {
-            display: none;
+        tbody tr {
+            transition: all 0.2s;
         }
         
-        .view.active {
-            display: block;
+        tbody tr:hover {
+            background: rgba(26,77,46,0.02);
         }
         
-        .alert {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 0.375rem 0.875rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
         }
         
-        .alert-success {
-            background: #d1fae5;
-            color: #065f46;
+        .badge-new { background: #e6fffa; color: #047857; }
+        .badge-contacted { background: #fef3c7; color: #92400e; }
+        
+        /* Form Sections */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, rgba(26,77,46,0.05), rgba(79,119,45,0.05));
+            border-radius: 12px;
+            border-left: 4px solid var(--color-primary);
         }
         
-        .alert-error {
-            background: #fee2e2;
-            color: #991b1b;
+        .section-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(26,77,46,0.2);
         }
         
+        .section-info h3 {
+            font-size: 1.25rem;
+            color: var(--color-dark);
+            font-weight: 700;
+        }
+        
+        .section-subtitle {
+            color: var(--color-text-light);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+        
+        /* Form */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--color-text);
+            font-size: 0.95rem;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 0.875rem;
+            border: 2px solid var(--color-border);
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 4px rgba(26,77,46,0.1);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        /* Links Grid */
         .links-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 1.5rem;
         }
         
@@ -322,33 +474,171 @@
             background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
             color: white;
             padding: 2rem;
-            border-radius: 12px;
+            border-radius: 16px;
             text-decoration: none;
             display: block;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(26,77,46,0.2);
+        }
+        
+        .link-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 24px rgba(26,77,46,0.3);
         }
         
         .link-card h4 {
-            font-size: 1.25rem;
+            font-size: 1.375rem;
             margin-bottom: 0.5rem;
         }
         
+        .link-card p {
+            opacity: 0.9;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+        
         .link-url {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             opacity: 0.7;
-            font-family: monospace;
+            font-family: 'Courier New', monospace;
             word-break: break-all;
+            background: rgba(0,0,0,0.1);
+            padding: 0.5rem;
+            border-radius: 6px;
         }
         
         .copy-btn {
             background: rgba(255,255,255,0.2);
             color: white;
             border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
             cursor: pointer;
             margin-top: 1rem;
+            font-weight: 600;
+            transition: all 0.2s;
         }
         
+        .copy-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        /* Proposal Preview */
+        .proposal-preview {
+            background: white;
+            padding: 3rem;
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
+            max-width: 900px;
+            margin: 2rem auto;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+        
+        .proposal-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 3px solid var(--color-primary);
+        }
+        
+        .proposal-header h1 {
+            color: var(--color-primary);
+            font-size: 2.25rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .proposal-section {
+            margin-bottom: 2.5rem;
+        }
+        
+        .proposal-section h3 {
+            color: var(--color-primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--color-border);
+            font-size: 1.375rem;
+        }
+        
+        .proposal-value {
+            background: linear-gradient(135deg, rgba(26,77,46,0.05), rgba(79,119,45,0.05));
+            padding: 1.75rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            border-left: 4px solid var(--color-primary);
+        }
+        
+        .proposal-value-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+        
+        /* Alert */
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+        
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+        
+        /* Views */
+        .view {
+            display: none;
+        }
+        
+        .view.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--color-text-light);
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+        
+        /* Responsive */
         @media (max-width: 968px) {
             .app-container {
                 grid-template-columns: 1fr;
@@ -363,16 +653,42 @@
             .main-content {
                 margin-left: 0;
             }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
+        
+        @media print {
+            .sidebar,
+            .header,
+            .btn,
+            .nav {
+                display: none !important;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .proposal-preview {
+                border: none;
+                box-shadow: none;
+            }
         }
     </style>
 </head>
 <body>
     <!-- Loading Screen -->
     <div id="loadingScreen">
-        <div class="loading-content">
-            <div class="loading-spinner"></div>
-            <div>Verificando autenticação...</div>
-        </div>
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Verificando autenticação...</div>
     </div>
     
     <div class="app-container" id="appContainer">
@@ -384,25 +700,33 @@
             </div>
             
             <div class="user-info">
+                <div class="user-avatar">👤</div>
                 <div class="user-email" id="userEmail">usuario@dcont.com.br</div>
-                <button class="btn-logout" onclick="logout()">🚪 Sair</button>
+                <button class="btn-logout" onclick="logout()">
+                    <span>🚪</span>
+                    <span>Sair</span>
+                </button>
             </div>
             
             <ul class="nav">
                 <li class="nav-item active" onclick="showView('dashboard')">
-                    <span>📊</span>
+                    <span class="nav-icon">📊</span>
                     <span>Dashboard</span>
                 </li>
                 <li class="nav-item" onclick="showView('leads')">
-                    <span>👥</span>
+                    <span class="nav-icon">👥</span>
                     <span>Leads</span>
                 </li>
+                <li class="nav-item" onclick="showView('propostas')">
+                    <span class="nav-icon">📝</span>
+                    <span>Gerar Proposta</span>
+                </li>
                 <li class="nav-item" onclick="showView('links')">
-                    <span>🔗</span>
+                    <span class="nav-icon">🔗</span>
                     <span>Links & Recursos</span>
                 </li>
                 <li class="nav-item" onclick="showView('config')">
-                    <span>⚙️</span>
+                    <span class="nav-icon">⚙️</span>
                     <span>Configurações</span>
                 </li>
             </ul>
@@ -413,59 +737,105 @@
             <!-- Dashboard View -->
             <div class="view active" id="dashboard">
                 <div class="header">
-                    <h2>Dashboard</h2>
+                    <h2>📊 Dashboard</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary btn-small" onclick="syncLeads()">
+                            🔄 Sincronizar
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-value" id="totalLeads">0</div>
-                        <div class="stat-label">Total de Leads</div>
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-value" id="totalLeads">0</div>
+                                <div class="stat-label">Total de Leads</div>
+                            </div>
+                            <div class="stat-icon primary">👥</div>
+                        </div>
                     </div>
+                    
                     <div class="stat-card">
-                        <div class="stat-value" id="leadsHoje">0</div>
-                        <div class="stat-label">Leads Hoje</div>
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-value" id="leadsHoje">0</div>
+                                <div class="stat-label">Leads Hoje</div>
+                            </div>
+                            <div class="stat-icon success">📈</div>
+                        </div>
                     </div>
+                    
                     <div class="stat-card">
-                        <div class="stat-value">15%</div>
-                        <div class="stat-label">Taxa de Conversão</div>
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-value" id="leadsEmana">0</div>
+                                <div class="stat-label">Leads Esta Semana</div>
+                            </div>
+                            <div class="stat-icon warning">📅</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-value">15%</div>
+                                <div class="stat-label">Taxa de Conversão</div>
+                            </div>
+                            <div class="stat-icon info">💰</div>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="content-card">
-                    <h3 style="margin-bottom: 1.5rem;">Leads Recentes</h3>
+                    <div class="content-header">
+                        <h3>Leads Recentes</h3>
+                        <button class="btn btn-primary btn-small" onclick="showView('leads')">
+                            Ver Todos →
+                        </button>
+                    </div>
                     <div id="alertContainer"></div>
-                    <button class="btn btn-primary" onclick="syncLeads()" style="margin-bottom: 1rem;">
-                        🔄 Sincronizar com Google Sheets
-                    </button>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Data</th>
-                                <th>Nome</th>
-                                <th>E-mail</th>
-                                <th>Empresa</th>
-                                <th>Faturamento</th>
-                            </tr>
-                        </thead>
-                        <tbody id="leadsTable">
-                            <tr>
-                                <td colspan="5" style="text-align: center; padding: 2rem;">
-                                    Clique em "Sincronizar" para carregar os leads
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Nome</th>
+                                    <th>E-mail</th>
+                                    <th>Empresa</th>
+                                    <th>Faturamento</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leadsTable">
+                                <tr>
+                                    <td colspan="6" class="empty-state">
+                                        <div class="empty-state-icon">📊</div>
+                                        <p>Clique em "Sincronizar" para carregar os leads</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             
             <!-- Leads View -->
             <div class="view" id="leads">
                 <div class="header">
-                    <h2>Todos os Leads</h2>
+                    <h2>👥 Gestão de Leads</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary btn-small" onclick="exportLeads()">
+                            📥 Exportar CSV
+                        </button>
+                        <button class="btn btn-primary btn-small" onclick="syncLeads()">
+                            🔄 Sincronizar
+                        </button>
+                    </div>
                 </div>
+                
                 <div class="content-card">
-                    <button class="btn btn-primary" onclick="syncLeads()">🔄 Sincronizar</button>
-                    <div style="overflow-x: auto; margin-top: 1rem;">
+                    <div class="table-container">
                         <table>
                             <thead>
                                 <tr>
@@ -476,12 +846,14 @@
                                     <th>Empresa</th>
                                     <th>Faturamento</th>
                                     <th>Desafio</th>
+                                    <th>Ações</th>
                                 </tr>
                             </thead>
                             <tbody id="allLeadsTable">
                                 <tr>
-                                    <td colspan="7" style="text-align: center; padding: 2rem;">
-                                        Clique em "Sincronizar" para carregar
+                                    <td colspan="8" class="empty-state">
+                                        <div class="empty-state-icon">👥</div>
+                                        <p>Nenhum lead encontrado. Sincronize para carregar.</p>
                                     </td>
                                 </tr>
                             </tbody>
@@ -490,31 +862,149 @@
                 </div>
             </div>
             
+            <!-- Propostas View -->
+            <div class="view" id="propostas">
+                <div class="header">
+                    <h2>📝 Gerador de Propostas</h2>
+                </div>
+                
+                <div class="content-card">
+                    <form id="proposalForm">
+                        <!-- Seção 1 -->
+                        <div class="section-header">
+                            <div class="section-icon">👤</div>
+                            <div class="section-info">
+                                <h3>Dados do Cliente</h3>
+                                <p class="section-subtitle">Informações básicas para a proposta</p>
+                            </div>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Nome do Cliente *</label>
+                                <input type="text" id="clientName" required placeholder="João Silva">
+                            </div>
+                            <div class="form-group">
+                                <label>Empresa *</label>
+                                <input type="text" id="clientCompany" required placeholder="Empresa ABC Ltda">
+                            </div>
+                            <div class="form-group">
+                                <label>E-mail</label>
+                                <input type="email" id="clientEmail" placeholder="contato@empresa.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Telefone/WhatsApp</label>
+                                <input type="tel" id="clientPhone" placeholder="(16) 99999-9999">
+                            </div>
+                        </div>
+                        
+                        <!-- Seção 2 -->
+                        <div class="section-header">
+                            <div class="section-icon">💼</div>
+                            <div class="section-info">
+                                <h3>Serviços e Investimento</h3>
+                                <p class="section-subtitle">Selecione o pacote e defina o valor</p>
+                            </div>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label>Pacote de Serviços *</label>
+                                <select id="servicePackage" onchange="updatePackageValue()" required>
+                                    <option value="">Selecione um pacote...</option>
+                                    <option value="diagnostico" data-value="2500">💡 Diagnóstico 360° - R$ 2.500 (único)</option>
+                                    <option value="planejamento" data-value="5750">💰 Planejamento Tributário - R$ 3.500-8.000/mês</option>
+                                    <option value="controladoria" data-value="7000">📊 Controladoria - R$ 4.000-10.000/mês</option>
+                                    <option value="processos" data-value="8500">⚙️ Processos - R$ 5.000-12.000 (projeto)</option>
+                                    <option value="inteligencia" data-value="6500">📈 Inteligência de Dados - R$ 4.000-9.000/mês</option>
+                                    <option value="completo" data-value="14000">🎯 Gestão 360° - R$ 8.000-20.000/mês</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Valor do Investimento (R$) *</label>
+                                <input type="number" id="proposalValue" step="100" min="0" required placeholder="5000">
+                            </div>
+                            <div class="form-group">
+                                <label>Tipo de Cobrança</label>
+                                <select id="chargeType">
+                                    <option value="mensal">Mensal</option>
+                                    <option value="unico">Pagamento Único</option>
+                                    <option value="projeto">Por Projeto</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Seção 3 -->
+                        <div class="section-header">
+                            <div class="section-icon">📋</div>
+                            <div class="section-info">
+                                <h3>Detalhes Adicionais</h3>
+                                <p class="section-subtitle">Customizações e observações</p>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Observações / Customizações</label>
+                            <textarea id="proposalNotes" placeholder="Inclua benefícios específicos, prazos, ou customizações..."></textarea>
+                        </div>
+                        
+                        <div style="display: flex; gap: 1rem; margin-top: 2rem; padding-top: 2rem; border-top: 2px solid var(--color-border);">
+                            <button type="button" class="btn btn-secondary" onclick="clearForm()">
+                                🗑️ Limpar
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="generateProposal()">
+                                📄 Gerar Proposta
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div id="proposalPreviewContainer" style="display: none;">
+                    <div class="content-card">
+                        <div class="content-header">
+                            <h3>📄 Preview da Proposta</h3>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-secondary btn-small" onclick="editProposal()">
+                                    ✏️ Editar
+                                </button>
+                                <button class="btn btn-primary btn-small" onclick="window.print()">
+                                    📥 Baixar PDF
+                                </button>
+                            </div>
+                        </div>
+                        <div class="proposal-preview" id="proposalPreview"></div>
+                    </div>
+                </div>
+            </div>
+            
             <!-- Links View -->
             <div class="view" id="links">
                 <div class="header">
-                    <h2>Links & Recursos</h2>
+                    <h2>🔗 Links & Recursos</h2>
                 </div>
+                
                 <div class="content-card">
-                    <h3 style="margin-bottom: 1.5rem;">🌐 Links Públicos</h3>
+                    <div class="content-header">
+                        <h3>🌐 Links Públicos</h3>
+                    </div>
                     <div class="links-grid">
                         <div class="link-card">
                             <h4>🏠 Landing Page</h4>
-                            <p>Página principal de captura</p>
+                            <p>Página principal de captura de leads</p>
                             <div class="link-url" id="landingUrl">https://marantmir.github.io/dcont-landing-page/</div>
-                            <button class="copy-btn" onclick="copyLink('landingUrl')">📋 Copiar</button>
+                            <button class="copy-btn" onclick="copyLink('landingUrl')">📋 Copiar Link</button>
                         </div>
                         <div class="link-card">
                             <h4>📊 Apresentação</h4>
-                            <p>Apresentação comercial</p>
+                            <p>Apresentação comercial interativa</p>
                             <div class="link-url" id="apresentacaoUrl">https://marantmir.github.io/dcont-landing-page/apresentacao-dcont.html</div>
-                            <button class="copy-btn" onclick="copyLink('apresentacaoUrl')">📋 Copiar</button>
+                            <button class="copy-btn" onclick="copyLink('apresentacaoUrl')">📋 Copiar Link</button>
                         </div>
                         <div class="link-card">
-                            <h4>📋 Planilha</h4>
-                            <p>Base de dados</p>
+                            <h4>📋 Planilha de Leads</h4>
+                            <p>Base de dados no Google Sheets</p>
                             <div class="link-url" id="sheetsUrl">https://docs.google.com/spreadsheets/d/1Ba7oCFqo6fYlQ3ElJcLERPopw_VIKGwNrFqTxCv9-ik</div>
-                            <button class="copy-btn" onclick="copyLink('sheetsUrl')">📋 Copiar</button>
+                            <button class="copy-btn" onclick="copyLink('sheetsUrl')">📋 Copiar Link</button>
                         </div>
                     </div>
                 </div>
@@ -523,50 +1013,88 @@
             <!-- Config View -->
             <div class="view" id="config">
                 <div class="header">
-                    <h2>Configurações</h2>
+                    <h2>⚙️ Configurações</h2>
                 </div>
+                
                 <div class="content-card">
-                    <h3 style="margin-bottom: 1rem;">ID da Planilha</h3>
-                    <input type="text" id="spreadsheetId" value="1Ba7oCFqo6fYlQ3ElJcLERPopw_VIKGwNrFqTxCv9-ik" 
-                           style="width: 100%; padding: 0.75rem; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 1rem;">
-                    <button class="btn btn-primary" onclick="saveConfig()">💾 Salvar</button>
+                    <div class="content-header">
+                        <h3>🔧 Configurações do Sistema</h3>
+                    </div>
+                    <div class="form-group">
+                        <label>ID da Planilha Google Sheets</label>
+                        <input type="text" id="spreadsheetId" value="1Ba7oCFqo6fYlQ3ElJcLERPopw_VIKGwNrFqTxCv9-ik">
+                    </div>
+                    <button class="btn btn-primary" onclick="saveConfig()">💾 Salvar Configurações</button>
                 </div>
             </div>
         </main>
     </div>
     
+    <!-- Firebase & JavaScript -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        
+        // CONFIGURE SUAS CREDENCIAIS DO FIREBASE AQUI
+        const firebaseConfig = {
+            apiKey: "SUA_API_KEY_AQUI",
+            authDomain: "SEU_PROJETO.firebaseapp.com",
+            projectId: "SEU_PROJETO_ID",
+            storageBucket: "SEU_PROJETO.appspot.com",
+            messagingSenderId: "SEU_MESSAGING_ID",
+            appId: "SEU_APP_ID"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        
+        onAuthStateChanged(auth, (user) => {
+            const loadingScreen = document.getElementById('loadingScreen');
+            const appContainer = document.getElementById('appContainer');
+            
+            if (user) {
+                document.getElementById('userEmail').textContent = user.email;
+                loadingScreen.style.display = 'none';
+                appContainer.style.display = 'grid';
+                window.initializeApp();
+            } else {
+                window.location.href = 'login-dcont.html';
+            }
+        });
+        
+        window.logout = async () => {
+            if (confirm('Deseja realmente sair?')) {
+                try {
+                    await signOut(auth);
+                    window.location.href = 'login-dcont.html';
+                } catch (error) {
+                    alert('Erro ao sair: ' + error.message);
+                }
+            }
+        };
+    </script>
+    
     <script>
-        // Configuração
         const SPREADSHEET_ID = '1Ba7oCFqo6fYlQ3ElJcLERPopw_VIKGwNrFqTxCv9-ik';
         let leadsData = [];
         
-        // Inicializar app
         window.initializeApp = () => {
-            console.log('App inicializado');
-            // Carregar dados de exemplo
             loadDemoData();
         };
         
-        // Navegação
         function showView(viewName) {
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            document.querySelectorAll('.view').forEach(view => {
-                view.classList.remove('active');
-            });
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
             document.getElementById(viewName).classList.add('active');
             event.target.closest('.nav-item').classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
         
-        // Sincronizar leads
         async function syncLeads() {
-            showAlert('Sincronizando dados...', 'success');
-            
+            showAlert('🔄 Sincronizando dados...', 'success');
             try {
                 const sheetId = document.getElementById('spreadsheetId').value || SPREADSHEET_ID;
                 const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
-                
                 const response = await fetch(url);
                 const text = await response.text();
                 const json = JSON.parse(text.substr(47).slice(0, -2));
@@ -584,85 +1112,211 @@
                 
                 updateDashboard();
                 updateLeadsTable();
-                showAlert(`✅ ${leadsData.length} leads sincronizados!`, 'success');
+                showAlert(`✅ ${leadsData.length} leads sincronizados com sucesso!`, 'success');
             } catch (error) {
                 console.error('Erro:', error);
-                showAlert('❌ Erro ao sincronizar. Verifique: 1) ID da planilha correto 2) Planilha com permissão "Qualquer pessoa com o link pode visualizar"', 'error');
+                showAlert('❌ Erro ao sincronizar. Verifique se a planilha está com permissão "Qualquer pessoa com o link pode visualizar"', 'error');
                 loadDemoData();
             }
         }
         
-        // Dados de exemplo
         function loadDemoData() {
-            leadsData = [
-                {
-                    data: new Date().toLocaleDateString('pt-BR'),
-                    nome: 'João Silva (DEMO)',
-                    email: 'joao@empresa.com',
-                    telefone: '(16) 99999-9999',
-                    empresa: 'Empresa ABC Ltda',
-                    faturamento: 'R$ 2 a R$ 5 milhões',
-                    desafio: 'Reduzir Carga Tributária'
-                }
-            ];
+            leadsData = [{
+                data: new Date().toLocaleDateString('pt-BR'),
+                nome: 'João Silva (DEMO)',
+                email: 'joao@empresa.com',
+                telefone: '(16) 99999-9999',
+                empresa: 'Empresa ABC Ltda',
+                faturamento: 'R$ 2 a R$ 5 milhões',
+                desafio: 'Reduzir Carga Tributária'
+            }];
             updateDashboard();
             updateLeadsTable();
         }
         
-        // Atualizar dashboard
         function updateDashboard() {
+            const hoje = new Date().toLocaleDateString('pt-BR');
             document.getElementById('totalLeads').textContent = leadsData.length;
-            document.getElementById('leadsHoje').textContent = leadsData.filter(l => 
-                l.data === new Date().toLocaleDateString('pt-BR')
-            ).length;
+            document.getElementById('leadsHoje').textContent = leadsData.filter(l => l.data === hoje).length;
+            document.getElementById('leadsEmana').textContent = leadsData.length;
             
             const tbody = document.getElementById('leadsTable');
             tbody.innerHTML = leadsData.slice(0, 5).map(lead => `
                 <tr>
                     <td>${lead.data}</td>
-                    <td>${lead.nome}</td>
+                    <td><strong>${lead.nome}</strong></td>
                     <td>${lead.email}</td>
                     <td>${lead.empresa || '-'}</td>
                     <td>${lead.faturamento || '-'}</td>
+                    <td><span class="badge badge-new">Novo</span></td>
                 </tr>
-            `).join('') || '<tr><td colspan="5" style="text-align: center;">Nenhum lead</td></tr>';
+            `).join('') || '<tr><td colspan="6" class="empty-state"><div class="empty-state-icon">📊</div><p>Nenhum lead</p></td></tr>';
         }
         
-        // Atualizar tabela completa
         function updateLeadsTable() {
             const tbody = document.getElementById('allLeadsTable');
             tbody.innerHTML = leadsData.map(lead => `
                 <tr>
                     <td>${lead.data}</td>
-                    <td>${lead.nome}</td>
+                    <td><strong>${lead.nome}</strong></td>
                     <td>${lead.email}</td>
                     <td>${lead.telefone}</td>
                     <td>${lead.empresa || '-'}</td>
                     <td>${lead.faturamento || '-'}</td>
                     <td>${lead.desafio || '-'}</td>
+                    <td>
+                        <button class="btn btn-primary btn-small" onclick="createProposalFromLead('${lead.nome}','${lead.empresa}','${lead.email}','${lead.telefone}')">
+                            📝 Proposta
+                        </button>
+                    </td>
                 </tr>
-            `).join('') || '<tr><td colspan="7" style="text-align: center;">Nenhum lead</td></tr>';
+            `).join('') || '<tr><td colspan="8" class="empty-state"><div class="empty-state-icon">👥</div><p>Nenhum lead</p></td></tr>';
         }
         
-        // Copiar link
+        function createProposalFromLead(nome, empresa, email, telefone) {
+            showView('propostas');
+            document.getElementById('clientName').value = nome;
+            document.getElementById('clientCompany').value = empresa;
+            document.getElementById('clientEmail').value = email;
+            document.getElementById('clientPhone').value = telefone;
+        }
+        
+        function updatePackageValue() {
+            const select = document.getElementById('servicePackage');
+            const valueInput = document.getElementById('proposalValue');
+            const selectedOption = select.options[select.selectedIndex];
+            const suggestedValue = selectedOption.dataset.value;
+            if (suggestedValue) valueInput.value = suggestedValue;
+        }
+        
+        function generateProposal() {
+            const clientName = document.getElementById('clientName').value;
+            const clientCompany = document.getElementById('clientCompany').value;
+            const clientEmail = document.getElementById('clientEmail').value;
+            const clientPhone = document.getElementById('clientPhone').value;
+            const packageSelect = document.getElementById('servicePackage');
+            const proposalValue = document.getElementById('proposalValue').value;
+            const chargeType = document.getElementById('chargeType');
+            const notes = document.getElementById('proposalNotes').value;
+            
+            if (!clientName || !clientCompany || !packageSelect.value || !proposalValue) {
+                alert('❌ Preencha todos os campos obrigatórios (*)');
+                return;
+            }
+            
+            const packageText = packageSelect.options[packageSelect.selectedIndex].text;
+            const chargeTypeText = chargeType.options[chargeType.selectedIndex].text;
+            const formattedValue = parseFloat(proposalValue).toLocaleString('pt-BR');
+            
+            const proposalHTML = `
+                <div class="proposal-header">
+                    <h1>PROPOSTA COMERCIAL</h1>
+                    <p style="font-size: 1.1rem; color: var(--color-text-light);">DCont Soluções Contábeis</p>
+                    <p style="color: var(--color-text-light);">${new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                </div>
+                <div class="proposal-section">
+                    <h3>👤 Cliente</h3>
+                    <p><strong>${clientName}</strong></p>
+                    <p>${clientCompany}</p>
+                    ${clientEmail ? `<p>📧 ${clientEmail}</p>` : ''}
+                    ${clientPhone ? `<p>📱 ${clientPhone}</p>` : ''}
+                </div>
+                <div class="proposal-section">
+                    <h3>🏢 Sobre a DCont</h3>
+                    <p>A DCont Soluções Contábeis atua como <strong>parceira estratégica de empresas em expansão</strong>, transformando contabilidade em vantagem competitiva através de gestão orientada por dados.</p>
+                </div>
+                <div class="proposal-section">
+                    <h3>💼 Solução Proposta</h3>
+                    <p><strong>${packageText.replace(/💡|💰|📊|⚙️|📈|🎯/g, '').trim()}</strong></p>
+                    ${notes ? `<p style="margin-top: 1rem;">${notes.replace(/\n/g, '<br>')}</p>` : ''}
+                </div>
+                <div class="proposal-section">
+                    <h3>💰 Investimento</h3>
+                    <div class="proposal-value">
+                        <div class="proposal-value-row">
+                            <span>Valor Total:</span>
+                            <span>R$ ${formattedValue}</span>
+                        </div>
+                        <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--color-text-light); font-weight: normal;">
+                            Cobrança: ${chargeTypeText}
+                        </p>
+                    </div>
+                </div>
+                <div class="proposal-section">
+                    <h3>🎯 Nosso Foco</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 0.5rem 0; border-bottom: 1px solid #e0e0e0;">✓ Aumentar margem de lucro</li>
+                        <li style="padding: 0.5rem 0; border-bottom: 1px solid #e0e0e0;">✓ Reduzir riscos fiscais</li>
+                        <li style="padding: 0.5rem 0; border-bottom: 1px solid #e0e0e0;">✓ Organizar gestão financeira</li>
+                        <li style="padding: 0.5rem 0;">✓ Gerar previsibilidade</li>
+                    </ul>
+                </div>
+                <div class="proposal-section">
+                    <h3>📋 Próximos Passos</h3>
+                    <ol style="line-height: 2;">
+                        <li>Aprovação da proposta</li>
+                        <li>Assinatura do contrato</li>
+                        <li>Início do Diagnóstico 360°</li>
+                        <li>Apresentação do plano estratégico</li>
+                        <li>Implementação e acompanhamento</li>
+                    </ol>
+                </div>
+                <div class="proposal-section" style="text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 3px solid var(--color-primary);">
+                    <p style="font-weight: 700; font-size: 1.1rem; color: var(--color-primary);">DCont Soluções Contábeis</p>
+                    <p style="color: var(--color-text-light);">contato@dcont.com.br | (16) 99999-9999</p>
+                    <p style="color: var(--color-text-light); margin-top: 0.5rem;">Contabilidade Estratégica e Gestão Orientada por Dados</p>
+                </div>
+            `;
+            
+            document.getElementById('proposalPreview').innerHTML = proposalHTML;
+            document.getElementById('proposalPreviewContainer').style.display = 'block';
+            document.getElementById('proposalPreviewContainer').scrollIntoView({ behavior: 'smooth' });
+            showAlert('✅ Proposta gerada com sucesso!', 'success');
+        }
+        
+        function editProposal() {
+            document.getElementById('proposalPreviewContainer').style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function clearForm() {
+            if (confirm('Deseja limpar todos os campos?')) {
+                document.getElementById('proposalForm').reset();
+                document.getElementById('proposalPreviewContainer').style.display = 'none';
+            }
+        }
+        
         function copyLink(elementId) {
             const text = document.getElementById(elementId).textContent;
             navigator.clipboard.writeText(text).then(() => {
-                showAlert('Link copiado!', 'success');
+                showAlert('✅ Link copiado para a área de transferência!', 'success');
             });
         }
         
-        // Salvar config
-        function saveConfig() {
-            showAlert('Configurações salvas!', 'success');
+        function exportLeads() {
+            const csv = [
+                ['Data', 'Nome', 'E-mail', 'Telefone', 'Empresa', 'Faturamento', 'Desafio'],
+                ...leadsData.map(lead => [lead.data, lead.nome, lead.email, lead.telefone, lead.empresa, lead.faturamento, lead.desafio])
+            ].map(row => row.join(',')).join('\n');
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `leads-dcont-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            showAlert('✅ Leads exportados com sucesso!', 'success');
         }
         
-        // Mostrar alerta
+        function saveConfig() {
+            showAlert('✅ Configurações salvas com sucesso!', 'success');
+        }
+        
         function showAlert(message, type) {
             const container = document.getElementById('alertContainer') || document.querySelector('.content-card');
             const alert = document.createElement('div');
             alert.className = `alert alert-${type}`;
-            alert.textContent = message;
+            alert.innerHTML = `<span>${message}</span>`;
             container.prepend(alert);
             setTimeout(() => alert.remove(), 5000);
         }
