@@ -5,25 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DCont - Portal Administrativo Seguro</title>
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Importar Firebase primeiro
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        
+        // CONFIGURE SUAS CREDENCIAIS AQUI
+        const firebaseConfig = {
+            apiKey: "SUA_API_KEY_AQUI",
+            authDomain: "SEU_PROJETO.firebaseapp.com",
+            projectId: "SEU_PROJETO_ID",
+            storageBucket: "SEU_PROJETO.appspot.com",
+            messagingSenderId: "SEU_MESSAGING_ID",
+            appId: "SEU_APP_ID"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        
+        // Verificar autenticação
+        onAuthStateChanged(auth, (user) => {
+            const loadingScreen = document.getElementById('loadingScreen');
+            const appContainer = document.getElementById('appContainer');
+            
+            if (user) {
+                // Autenticado - mostrar portal
+                document.getElementById('userEmail').textContent = user.email;
+                loadingScreen.style.display = 'none';
+                appContainer.style.display = 'grid';
+                
+                // Carregar dados de exemplo
+                window.initializeApp();
+            } else {
+                // Não autenticado - redirecionar
+                window.location.href = 'login-dcont.html';
+            }
+        });
+        
+        // Logout
+        window.logout = async () => {
+            if (confirm('Deseja realmente sair?')) {
+                try {
+                    await signOut(auth);
+                    window.location.href = 'login-dcont.html';
+                } catch (error) {
+                    alert('Erro ao sair: ' + error.message);
+                }
+            }
+        };
+    </script>
+    
     <style>
-        /* [MESMO CSS DO PORTAL ANTERIOR - Copiado na íntegra] */
         :root {
             --color-primary: #1a4d2e;
             --color-secondary: #4f772d;
             --color-accent: #d4a574;
             --color-dark: #0d1f14;
             --color-bg: #f8f9fa;
-            --color-card: #ffffff;
-            --color-border: #e0e0e0;
             --color-text: #2d3748;
             --color-text-light: #718096;
             --color-success: #48bb78;
             --color-warning: #ed8936;
-            --color-danger: #f56565;
         }
         
         * {
@@ -39,13 +84,10 @@
         }
         
         /* Loading Screen */
-        .loading-screen {
+        #loadingScreen {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, var(--color-dark) 0%, var(--color-primary) 100%);
+            inset: 0;
+            background: linear-gradient(135deg, var(--color-dark), var(--color-primary));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -60,7 +102,7 @@
         .loading-spinner {
             width: 60px;
             height: 60px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
+            border: 4px solid rgba(255,255,255,0.3);
             border-radius: 50%;
             border-top-color: white;
             animation: spin 1s linear infinite;
@@ -71,21 +113,11 @@
             to { transform: rotate(360deg); }
         }
         
-        .loading-text {
-            font-size: 1.2rem;
-        }
-        
-        /* Layout - Igual ao portal anterior */
+        /* Layout */
         .app-container {
-            display: grid;
+            display: none;
             grid-template-columns: 280px 1fr;
             min-height: 100vh;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        .app-container.loaded {
-            opacity: 1;
         }
         
         .sidebar {
@@ -117,22 +149,23 @@
         .user-info {
             padding: 1rem 2rem;
             margin-bottom: 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255,255,255,0.05);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
         
         .user-email {
             font-size: 0.85rem;
             opacity: 0.8;
             margin-bottom: 0.5rem;
+            word-break: break-all;
         }
         
         .btn-logout {
             width: 100%;
             padding: 0.5rem;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
             color: white;
             border-radius: 6px;
             cursor: pointer;
@@ -141,12 +174,8 @@
         }
         
         .btn-logout:hover {
-            background: rgba(255, 77, 77, 0.2);
-            border-color: rgba(255, 77, 77, 0.3);
+            background: rgba(245,101,101,0.2);
         }
-        
-        /* Resto do CSS do portal anterior... */
-        /* [Incluir todo o CSS do portal-administrativo-dcont.html] */
         
         .nav {
             list-style: none;
@@ -163,11 +192,11 @@
         }
         
         .nav-item:hover {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255,255,255,0.05);
         }
         
         .nav-item.active {
-            background: rgba(79, 119, 45, 0.2);
+            background: rgba(79,119,45,0.2);
             border-left-color: var(--color-accent);
         }
         
@@ -181,21 +210,168 @@
             padding: 1.5rem 2rem;
             border-radius: 12px;
             margin-bottom: 2rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         
-        /* [Resto do CSS omitido por brevidade - usar o mesmo do portal anterior] */
+        .header h2 {
+            font-size: 1.75rem;
+            color: var(--color-dark);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-dark);
+        }
+        
+        .stat-label {
+            color: var(--color-text-light);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+        
+        .content-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--color-secondary);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            background: var(--color-bg);
+            font-size: 0.85rem;
+        }
+        
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .view {
+            display: none;
+        }
+        
+        .view.active {
+            display: block;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .link-card {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            display: block;
+        }
+        
+        .link-card h4 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .link-url {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        
+        .copy-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        
+        @media (max-width: 968px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+        }
     </style>
 </head>
 <body>
     <!-- Loading Screen -->
-    <div class="loading-screen" id="loadingScreen">
+    <div id="loadingScreen">
         <div class="loading-content">
             <div class="loading-spinner"></div>
-            <div class="loading-text">Verificando autenticação...</div>
+            <div>Verificando autenticação...</div>
         </div>
     </div>
     
@@ -213,82 +389,283 @@
             </div>
             
             <ul class="nav">
-                <li class="nav-item active" data-view="dashboard">
-                    <span class="nav-icon">📊</span>
+                <li class="nav-item active" onclick="showView('dashboard')">
+                    <span>📊</span>
                     <span>Dashboard</span>
                 </li>
-                <li class="nav-item" data-view="leads">
-                    <span class="nav-icon">👥</span>
+                <li class="nav-item" onclick="showView('leads')">
+                    <span>👥</span>
                     <span>Leads</span>
                 </li>
-                <li class="nav-item" data-view="propostas">
-                    <span class="nav-icon">📝</span>
-                    <span>Gerar Proposta</span>
-                </li>
-                <li class="nav-item" data-view="links">
-                    <span class="nav-icon">🔗</span>
+                <li class="nav-item" onclick="showView('links')">
+                    <span>🔗</span>
                     <span>Links & Recursos</span>
+                </li>
+                <li class="nav-item" onclick="showView('config')">
+                    <span>⚙️</span>
+                    <span>Configurações</span>
                 </li>
             </ul>
         </aside>
         
         <!-- Main Content -->
         <main class="main-content">
-            <h1>Portal Administrativo Protegido</h1>
-            <p>Conteúdo protegido - apenas usuários autenticados podem ver.</p>
+            <!-- Dashboard View -->
+            <div class="view active" id="dashboard">
+                <div class="header">
+                    <h2>Dashboard</h2>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalLeads">0</div>
+                        <div class="stat-label">Total de Leads</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="leadsHoje">0</div>
+                        <div class="stat-label">Leads Hoje</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">15%</div>
+                        <div class="stat-label">Taxa de Conversão</div>
+                    </div>
+                </div>
+                
+                <div class="content-card">
+                    <h3 style="margin-bottom: 1.5rem;">Leads Recentes</h3>
+                    <div id="alertContainer"></div>
+                    <button class="btn btn-primary" onclick="syncLeads()" style="margin-bottom: 1rem;">
+                        🔄 Sincronizar com Google Sheets
+                    </button>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Nome</th>
+                                <th>E-mail</th>
+                                <th>Empresa</th>
+                                <th>Faturamento</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leadsTable">
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 2rem;">
+                                    Clique em "Sincronizar" para carregar os leads
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
             
-            <!-- [Incluir todo o conteúdo do portal anterior] -->
+            <!-- Leads View -->
+            <div class="view" id="leads">
+                <div class="header">
+                    <h2>Todos os Leads</h2>
+                </div>
+                <div class="content-card">
+                    <button class="btn btn-primary" onclick="syncLeads()">🔄 Sincronizar</button>
+                    <div style="overflow-x: auto; margin-top: 1rem;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Nome</th>
+                                    <th>E-mail</th>
+                                    <th>Telefone</th>
+                                    <th>Empresa</th>
+                                    <th>Faturamento</th>
+                                    <th>Desafio</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allLeadsTable">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 2rem;">
+                                        Clique em "Sincronizar" para carregar
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Links View -->
+            <div class="view" id="links">
+                <div class="header">
+                    <h2>Links & Recursos</h2>
+                </div>
+                <div class="content-card">
+                    <h3 style="margin-bottom: 1.5rem;">🌐 Links Públicos</h3>
+                    <div class="links-grid">
+                        <div class="link-card">
+                            <h4>🏠 Landing Page</h4>
+                            <p>Página principal de captura</p>
+                            <div class="link-url" id="landingUrl">https://marantmir.github.io/dcont-landing-page/</div>
+                            <button class="copy-btn" onclick="copyLink('landingUrl')">📋 Copiar</button>
+                        </div>
+                        <div class="link-card">
+                            <h4>📊 Apresentação</h4>
+                            <p>Apresentação comercial</p>
+                            <div class="link-url" id="apresentacaoUrl">https://marantmir.github.io/dcont-landing-page/apresentacao-dcont.html</div>
+                            <button class="copy-btn" onclick="copyLink('apresentacaoUrl')">📋 Copiar</button>
+                        </div>
+                        <div class="link-card">
+                            <h4>📋 Planilha</h4>
+                            <p>Base de dados</p>
+                            <div class="link-url" id="sheetsUrl">https://docs.google.com/spreadsheets/d/1Ba7oCFqo6fYlQ3ElJcLERPopw_VIKGwNrFqTxCv9-ik</div>
+                            <button class="copy-btn" onclick="copyLink('sheetsUrl')">📋 Copiar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Config View -->
+            <div class="view" id="config">
+                <div class="header">
+                    <h2>Configurações</h2>
+                </div>
+                <div class="content-card">
+                    <h3 style="margin-bottom: 1rem;">ID da Planilha</h3>
+                    <input type="text" id="spreadsheetId" value="1Ba7oCFqo6fYlQ3ElJcLERPopw_VIKGwNrFqTxCv9-ik" 
+                           style="width: 100%; padding: 0.75rem; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 1rem;">
+                    <button class="btn btn-primary" onclick="saveConfig()">💾 Salvar</button>
+                </div>
+            </div>
         </main>
     </div>
     
-    <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    <script>
+        // Configuração
+        const SPREADSHEET_ID = '1Ba7oCFqo6fYlQ3ElJcLERPopw_VIKGwNrFqTxCv9-ik';
+        let leadsData = [];
         
-        // Mesma configuração do Firebase do login
-        const firebaseConfig = {
-            apiKey: "SUA_API_KEY_AQUI",
-            authDomain: "SEU_PROJETO.firebaseapp.com",
-            projectId: "SEU_PROJETO_ID",
-            storageBucket: "SEU_PROJETO.appspot.com",
-            messagingSenderId: "SEU_MESSAGING_ID",
-            appId: "SEU_APP_ID"
+        // Inicializar app
+        window.initializeApp = () => {
+            console.log('App inicializado');
+            // Carregar dados de exemplo
+            loadDemoData();
         };
         
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+        // Navegação
+        function showView(viewName) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelectorAll('.view').forEach(view => {
+                view.classList.remove('active');
+            });
+            document.getElementById(viewName).classList.add('active');
+            event.target.closest('.nav-item').classList.add('active');
+        }
         
-        // Verificar autenticação
-        onAuthStateChanged(auth, (user) => {
-            const loadingScreen = document.getElementById('loadingScreen');
-            const appContainer = document.getElementById('appContainer');
+        // Sincronizar leads
+        async function syncLeads() {
+            showAlert('Sincronizando dados...', 'success');
             
-            if (user) {
-                // Usuário autenticado - mostrar portal
-                document.getElementById('userEmail').textContent = user.email;
-                loadingScreen.style.display = 'none';
-                appContainer.classList.add('loaded');
-                
-                console.log('Usuário autenticado:', user.email);
-            } else {
-                // Não autenticado - redirecionar para login
-                window.location.href = 'login-dcont.html';
-            }
-        });
-        
-        // Função de logout
-        window.logout = async () => {
             try {
-                await signOut(auth);
-                window.location.href = 'login-dcont.html';
+                const sheetId = document.getElementById('spreadsheetId').value || SPREADSHEET_ID;
+                const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
+                
+                const response = await fetch(url);
+                const text = await response.text();
+                const json = JSON.parse(text.substr(47).slice(0, -2));
+                const rows = json.table.rows;
+                
+                leadsData = rows.slice(1).map(row => ({
+                    data: row.c[0]?.f || row.c[0]?.v || '',
+                    nome: row.c[1]?.v || '',
+                    email: row.c[2]?.v || '',
+                    telefone: row.c[3]?.v || '',
+                    empresa: row.c[4]?.v || '',
+                    faturamento: row.c[5]?.v || '',
+                    desafio: row.c[6]?.v || ''
+                }));
+                
+                updateDashboard();
+                updateLeadsTable();
+                showAlert(`✅ ${leadsData.length} leads sincronizados!`, 'success');
             } catch (error) {
-                console.error('Erro ao fazer logout:', error);
-                alert('Erro ao sair. Tente novamente.');
+                console.error('Erro:', error);
+                showAlert('❌ Erro ao sincronizar. Verifique: 1) ID da planilha correto 2) Planilha com permissão "Qualquer pessoa com o link pode visualizar"', 'error');
+                loadDemoData();
             }
-        };
+        }
         
-        // [Incluir todo o JavaScript do portal anterior]
+        // Dados de exemplo
+        function loadDemoData() {
+            leadsData = [
+                {
+                    data: new Date().toLocaleDateString('pt-BR'),
+                    nome: 'João Silva (DEMO)',
+                    email: 'joao@empresa.com',
+                    telefone: '(16) 99999-9999',
+                    empresa: 'Empresa ABC Ltda',
+                    faturamento: 'R$ 2 a R$ 5 milhões',
+                    desafio: 'Reduzir Carga Tributária'
+                }
+            ];
+            updateDashboard();
+            updateLeadsTable();
+        }
+        
+        // Atualizar dashboard
+        function updateDashboard() {
+            document.getElementById('totalLeads').textContent = leadsData.length;
+            document.getElementById('leadsHoje').textContent = leadsData.filter(l => 
+                l.data === new Date().toLocaleDateString('pt-BR')
+            ).length;
+            
+            const tbody = document.getElementById('leadsTable');
+            tbody.innerHTML = leadsData.slice(0, 5).map(lead => `
+                <tr>
+                    <td>${lead.data}</td>
+                    <td>${lead.nome}</td>
+                    <td>${lead.email}</td>
+                    <td>${lead.empresa || '-'}</td>
+                    <td>${lead.faturamento || '-'}</td>
+                </tr>
+            `).join('') || '<tr><td colspan="5" style="text-align: center;">Nenhum lead</td></tr>';
+        }
+        
+        // Atualizar tabela completa
+        function updateLeadsTable() {
+            const tbody = document.getElementById('allLeadsTable');
+            tbody.innerHTML = leadsData.map(lead => `
+                <tr>
+                    <td>${lead.data}</td>
+                    <td>${lead.nome}</td>
+                    <td>${lead.email}</td>
+                    <td>${lead.telefone}</td>
+                    <td>${lead.empresa || '-'}</td>
+                    <td>${lead.faturamento || '-'}</td>
+                    <td>${lead.desafio || '-'}</td>
+                </tr>
+            `).join('') || '<tr><td colspan="7" style="text-align: center;">Nenhum lead</td></tr>';
+        }
+        
+        // Copiar link
+        function copyLink(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                showAlert('Link copiado!', 'success');
+            });
+        }
+        
+        // Salvar config
+        function saveConfig() {
+            showAlert('Configurações salvas!', 'success');
+        }
+        
+        // Mostrar alerta
+        function showAlert(message, type) {
+            const container = document.getElementById('alertContainer') || document.querySelector('.content-card');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            container.prepend(alert);
+            setTimeout(() => alert.remove(), 5000);
+        }
     </script>
 </body>
 </html>
