@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DCont - Apresentação Comercial</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --color-primary: #1a4d2e;
+            --color-secondary: #4f772d;
+            --color-accent: #d4a574;
+            --color-gold: #c9a961;
+            --color-dark: #0d1f14;
+            --color-light: #f8f9f5;
+            --color-cream: #faf8f3;
+            --font-display: 'Playfair Display', serif;
+            --font-body: 'Inter', sans-serif;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            background: var(--color-dark);
+            color: white;
+        }
+        
+        /* Navegação */
+        .nav {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-dot.active {
+            background: var(--color-accent);
+            transform: scale(1.3);
+        }
+        
+        .nav-dot:hover {
+            background: rgba(255, 255, 255, 0.6);
+        }
+        
+        /* Slide Container */
+        .slide-container {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: 100vh;
+            scroll-behavior: smooth;
+        }
+        
+        /* Slide Base */
+        .slide {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            scroll-snap-align: start;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Slide 1 - Abertura Impactante */
+        .slide-1 {
+            background: linear-gradient(135deg, #0d1f14 0%, #1a4d2e 100%);
+        }
+        
+        .slide-1::before {
+            content: '';
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(79, 119, 45, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(212, 165, 116, 0.1) 0%, transparent 50%);
+            animation: float 15s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(20px, -20px) rotate(2deg); }
+        }
+        
+        .slide-1-content {
+            max-width: 1000px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .slide-1 h1 {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: slideUp 1s ease-out 0.3s forwards;
+        }
+        
+        .slide-1 .accent {
+            color: var(--color-accent);
+            font-style: italic;
+        }
+        
+        .slide-1 .subtitle {
+            font-size: clamp(1.2rem, 3vw, 2rem);
+            font-weight: 300;
+            opacity: 0.9;
+            margin-bottom: 3rem;
+            opacity: 0;
+            animation: slideUp 1s ease-out 0.6s forwards;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .scroll-indicator {
+            position: absolute;
+            bottom: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            animation: fadeIn 1s ease-out 1.2s forwards, bounce 2s ease-in-out 2s infinite;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 0.7; }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(10px); }
+        }
+        
+        .scroll-indicator svg {
+            width: 30px;
+            height: 30px;
+            stroke: var(--color-accent);
+        }
+        
+        /* Slide 2 - O Problema */
+        .slide-2 {
+            background: white;
+            color: var(--color-dark);
+        }
+        
+        .problem-grid {
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+        
+        .problem-text h2 {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            color: #c53030;
+            margin-bottom: 2rem;
+            line-height: 1.2;
+        }
+        
+        .problem-list {
+            list-style: none;
+        }
+        
+        .problem-list li {
+            padding: 1.5rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .problem-list li::before {
+            content: '✗';
+            color: #c53030;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .problem-visual {
+            position: relative;
+        }
+        
+        .chaos-chart {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(180deg, rgba(197, 48, 48, 0.1) 0%, rgba(197, 48, 48, 0.05) 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            padding: 2rem;
+            position: relative;
+        }
+        
+        .chaos-bar {
+            width: 60px;
+            background: linear-gradient(180deg, #c53030, #ff6b6b);
+            border-radius: 8px 8px 0 0;
+            animation: growBar 1.5s ease-out;
+        }
+        
+        @keyframes growBar {
+            from { height: 0; }
+        }
+        
+        .chaos-bar:nth-child(1) { height: 70%; }
+        .chaos-bar:nth-child(2) { height: 85%; }
+        .chaos-bar:nth-child(3) { height: 95%; }
+        .chaos-bar:nth-child(4) { height: 60%; }
+        
+        /* Slide 3 - A Solução */
+        .slide-3 {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+        }
+        
+        .solution-content {
+            max-width: 1200px;
+            text-align: center;
+        }
+        
+        .solution-content h2 {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 6vw, 5rem);
+            margin-bottom: 3rem;
+            color: var(--color-accent);
+        }
+        
+        .pillars {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .pillar {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 2.5rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .pillar:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--color-accent);
+        }
+        
+        .pillar-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .pillar h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--color-accent);
+        }
+        
+        .pillar p {
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        /* Slide 4 - Resultados */
+        .slide-4 {
+            background: var(--color-cream);
+            color: var(--color-dark);
+        }
+        
+        .results-content {
+            max-width: 1200px;
+        }
+        
+        .results-content h2 {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            text-align: center;
+            margin-bottom: 4rem;
+            color: var(--color-primary);
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+        }
+        
+        .result-card {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .result-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.15);
+        }
+        
+        .result-number {
+            font-family: var(--font-display);
+            font-size: 4rem;
+            font-weight: 900;
+            color: var(--color-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .result-label {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--color-dark);
+        }
+        
+        /* Slide 5 - Processo */
+        .slide-5 {
+            background: linear-gradient(135deg, #0d1f14 0%, #1a4d2e 50%, #4f772d 100%);
+        }
+        
+        .process-content {
+            max-width: 1000px;
+        }
+        
+        .process-content h2 {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            text-align: center;
+            margin-bottom: 4rem;
+            color: var(--color-accent);
+        }
+        
+        .process-steps {
+            display: grid;
+            gap: 2rem;
+        }
+        
+        .process-step {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 2rem;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 15px;
+            border-left: 4px solid var(--color-accent);
+            transition: all 0.3s ease;
+        }
+        
+        .process-step:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(10px);
+        }
+        
+        .step-number {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--color-accent), var(--color-gold));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--color-dark);
+        }
+        
+        .step-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--color-accent);
+        }
+        
+        .step-content p {
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        /* Slide 6 - Investimento */
+        .slide-6 {
+            background: white;
+            color: var(--color-dark);
+        }
+        
+        .pricing-content {
+            max-width: 1200px;
+            text-align: center;
+        }
+        
+        .pricing-content h2 {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            margin-bottom: 1rem;
+            color: var(--color-primary);
+        }
+        
+        .pricing-subtitle {
+            font-size: 1.3rem;
+            opacity: 0.7;
+            margin-bottom: 4rem;
+        }
+        
+        .pricing-tiers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .pricing-tier {
+            background: var(--color-light);
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .pricing-tier.featured {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            color: white;
+            transform: scale(1.05);
+            border-color: var(--color-accent);
+        }
+        
+        .pricing-tier:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+        
+        .tier-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .tier-price {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tier-period {
+            opacity: 0.7;
+            margin-bottom: 2rem;
+        }
+        
+        .tier-features {
+            list-style: none;
+            text-align: left;
+            margin-bottom: 2rem;
+        }
+        
+        .tier-features li {
+            padding: 0.8rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .pricing-tier.featured .tier-features li {
+            border-bottom-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .tier-features li::before {
+            content: '✓';
+            color: var(--color-secondary);
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+        
+        .pricing-tier.featured .tier-features li::before {
+            color: var(--color-accent);
+        }
+        
+        /* Slide 7 - CTA Final */
+        .slide-7 {
+            background: linear-gradient(135deg, var(--color-dark) 0%, var(--color-primary) 100%);
+            text-align: center;
+        }
+        
+        .cta-content {
+            max-width: 800px;
+        }
+        
+        .cta-content h2 {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 6vw, 5rem);
+            margin-bottom: 2rem;
+            color: var(--color-accent);
+        }
+        
+        .cta-content p {
+            font-size: 1.5rem;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            padding: 1.5rem 4rem;
+            background: linear-gradient(135deg, var(--color-accent), var(--color-gold));
+            color: var(--color-dark);
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .cta-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 20px 60px rgba(212, 165, 116, 0.4);
+        }
+        
+        .contact-info {
+            margin-top: 3rem;
+            padding-top: 3rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .contact-item {
+            display: inline-block;
+            margin: 0 2rem;
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+        
+        /* Responsivo */
+        @media (max-width: 968px) {
+            .problem-grid {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+            
+            .chaos-chart {
+                height: 300px;
+            }
+            
+            .nav {
+                bottom: 2rem;
+                top: auto;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .slide {
+                padding: 3rem 1.5rem;
+            }
+            
+            .pillars {
+                grid-template-columns: 1fr;
+            }
+            
+            .pricing-tiers {
+                grid-template-columns: 1fr;
+            }
+            
+            .pricing-tier.featured {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navegação por dots -->
+    <div class="nav">
+        <div class="nav-dot active" data-slide="0"></div>
+        <div class="nav-dot" data-slide="1"></div>
+        <div class="nav-dot" data-slide="2"></div>
+        <div class="nav-dot" data-slide="3"></div>
+        <div class="nav-dot" data-slide="4"></div>
+        <div class="nav-dot" data-slide="5"></div>
+        <div class="nav-dot" data-slide="6"></div>
+    </div>
+    
+    <div class="slide-container">
+        <!-- Slide 1: Abertura -->
+        <section class="slide slide-1">
+            <div class="slide-1-content">
+                <h1>
+                    Transformamos contabilidade<br>
+                    em <span class="accent">estratégia</span>
+                </h1>
+                <p class="subtitle">
+                    Dados em decisões. Processos em lucro.<br>
+                    Empresas em crescimento em organizações sustentáveis.
+                </p>
+            </div>
+            <div class="scroll-indicator">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </div>
+        </section>
+        
+        <!-- Slide 2: O Problema -->
+        <section class="slide slide-2">
+            <div class="problem-grid">
+                <div class="problem-text">
+                    <h2>Crescimento sem estrutura é caos</h2>
+                    <ul class="problem-list">
+                        <li>Faturamento aumentou, mas o caixa aperta</li>
+                        <li>Decisões baseadas em intuição, não em dados</li>
+                        <li>Impostos consumindo margem silenciosamente</li>
+                        <li>Processos desorganizados e retrabalho constante</li>
+                        <li>Falta de previsibilidade e controle</li>
+                    </ul>
+                </div>
+                <div class="problem-visual">
+                    <div class="chaos-chart">
+                        <div class="chaos-bar"></div>
+                        <div class="chaos-bar"></div>
+                        <div class="chaos-bar"></div>
+                        <div class="chaos-bar"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Slide 3: A Solução -->
+        <section class="slide slide-3">
+            <div class="solution-content">
+                <h2>A DCont Estrutura Seu Crescimento</h2>
+                <div class="pillars">
+                    <div class="pillar">
+                        <div class="pillar-icon">💰</div>
+                        <h3>Planejamento Tributário</h3>
+                        <p>Redução legal de carga tributária e estruturação estratégica</p>
+                    </div>
+                    <div class="pillar">
+                        <div class="pillar-icon">📊</div>
+                        <h3>Controladoria</h3>
+                        <p>Organização financeira e análise de margem por produto/serviço</p>
+                    </div>
+                    <div class="pillar">
+                        <div class="pillar-icon">⚙️</div>
+                        <h3>Processos</h3>
+                        <p>Mapeamento, padronização e otimização operacional</p>
+                    </div>
+                    <div class="pillar">
+                        <div class="pillar-icon">📈</div>
+                        <h3>Inteligência de Dados</h3>
+                        <p>Dashboards, KPIs e decisões baseadas em dados reais</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Slide 4: Resultados -->
+        <section class="slide slide-4">
+            <div class="results-content">
+                <h2>Resultados Reais, Mensuráveis</h2>
+                <div class="results-grid">
+                    <div class="result-card">
+                        <div class="result-number">+40%</div>
+                        <div class="result-label">Aumento de Margem Média</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-number">15-40%</div>
+                        <div class="result-label">Redução de Carga Tributária</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-number">100%</div>
+                        <div class="result-label">Previsibilidade Financeira</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Slide 5: Processo -->
+        <section class="slide slide-5">
+            <div class="process-content">
+                <h2>Como Trabalhamos</h2>
+                <div class="process-steps">
+                    <div class="process-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>Diagnóstico 360°</h3>
+                            <p>Análise profunda da estrutura tributária, financeira e operacional. Identificação de oportunidades e gargalos estratégicos.</p>
+                        </div>
+                    </div>
+                    <div class="process-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>Plano Estratégico</h3>
+                            <p>Desenvolvimento de roadmap personalizado com KPIs, metas e ações prioritárias. Definição de estrutura e governança.</p>
+                        </div>
+                    </div>
+                    <div class="process-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>Implementação</h3>
+                            <p>Execução estruturada: planejamento tributário, organização financeira, otimização de processos e implantação de indicadores.</p>
+                        </div>
+                    </div>
+                    <div class="process-step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h3>Gestão Contínua</h3>
+                            <p>Reuniões mensais estratégicas. Monitoramento de performance. Ajustes e evolução constante baseada em dados reais.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Slide 6: Investimento -->
+        <section class="slide slide-6">
+            <div class="pricing-content">
+                <h2>Investimento Estratégico</h2>
+                <p class="pricing-subtitle">Escolha o modelo ideal para sua empresa</p>
+                <div class="pricing-tiers">
+                    <div class="pricing-tier">
+                        <div class="tier-name">Diagnóstico 360°</div>
+                        <div class="tier-price">R$ 2.500</div>
+                        <div class="tier-period">Investimento único</div>
+                        <ul class="tier-features">
+                            <li>Auditoria tributária completa</li>
+                            <li>Análise financeira profunda</li>
+                            <li>Mapeamento de processos</li>
+                            <li>Relatório executivo</li>
+                            <li>Plano de ação personalizado</li>
+                        </ul>
+                    </div>
+                    <div class="pricing-tier featured">
+                        <div class="tier-name">Gestão Estratégica 360°</div>
+                        <div class="tier-price">R$ 8k-20k</div>
+                        <div class="tier-period">Por mês</div>
+                        <ul class="tier-features">
+                            <li>Planejamento tributário contínuo</li>
+                            <li>Controladoria completa</li>
+                            <li>Otimização de processos</li>
+                            <li>Dashboards e KPIs</li>
+                            <li>Reuniões mensais estratégicas</li>
+                            <li>Suporte prioritário</li>
+                        </ul>
+                    </div>
+                    <div class="pricing-tier">
+                        <div class="tier-name">Serviços Modulares</div>
+                        <div class="tier-price">A partir de R$ 3.5k</div>
+                        <div class="tier-period">Por mês</div>
+                        <ul class="tier-features">
+                            <li>Planejamento tributário</li>
+                            <li>Controladoria financeira</li>
+                            <li>Mapeamento de processos</li>
+                            <li>Dashboards gerenciais</li>
+                            <li>Consultoria pontual</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Slide 7: CTA -->
+        <section class="slide slide-7">
+            <div class="cta-content">
+                <h2>Pronto para Estruturar seu Crescimento?</h2>
+                <p>Transforme sua contabilidade em vantagem competitiva</p>
+                <a href="https://marantmir.github.io/dcont-landing-page/" class="cta-button" target="_blank">
+                    Solicitar Diagnóstico
+                </a>
+                <div class="contact-info">
+                    <div class="contact-item">📧 contato@dcont.com.br</div>
+                    <div class="contact-item">📱 WhatsApp: (16) 99999-9999</div>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <script>
+        // Navegação por dots
+        const dots = document.querySelectorAll('.nav-dot');
+        const slides = document.querySelectorAll('.slide');
+        const container = document.querySelector('.slide-container');
+        
+        // Click nos dots
+        dots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const slideIndex = parseInt(dot.dataset.slide);
+                slides[slideIndex].scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+        
+        // Atualiza dot ativo ao scrollar
+        container.addEventListener('scroll', () => {
+            let current = 0;
+            slides.forEach((slide, index) => {
+                const rect = slide.getBoundingClientRect();
+                if (rect.top >= 0 && rect.top < window.innerHeight / 2) {
+                    current = index;
+                }
+            });
+            
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === current);
+            });
+        });
+        
+        // Navegação por teclado
+        document.addEventListener('keydown', (e) => {
+            let current = 0;
+            slides.forEach((slide, index) => {
+                const rect = slide.getBoundingClientRect();
+                if (rect.top >= 0 && rect.top < window.innerHeight / 2) {
+                    current = index;
+                }
+            });
+            
+            if (e.key === 'ArrowDown' && current < slides.length - 1) {
+                slides[current + 1].scrollIntoView({ behavior: 'smooth' });
+            } else if (e.key === 'ArrowUp' && current > 0) {
+                slides[current - 1].scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    </script>
+</body>
+</html>
