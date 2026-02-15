@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DCont - Portal Administrativo</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --color-primary: #1a4d2e;
+            --color-secondary: #4f772d;
+            --color-accent: #d4a574;
+            --color-dark: #0d1f14;
+            --color-bg: #f8f9fa;
+            --color-card: #ffffff;
+            --color-border: #e0e0e0;
+            --color-text: #2d3748;
+            --color-text-light: #718096;
+            --color-success: #48bb78;
+            --color-warning: #ed8936;
+            --color-danger: #f56565;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+        }
+        
+        /* Layout */
+        .app-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            background: var(--color-dark);
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            width: 280px;
+            overflow-y: auto;
+        }
+        
+        .logo {
+            padding: 0 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            color: var(--color-accent);
+        }
+        
+        .logo p {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            margin-top: 0.25rem;
+        }
+        
+        .nav {
+            list-style: none;
+        }
+        
+        .nav-item {
+            padding: 0.75rem 2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .nav-item.active {
+            background: rgba(79, 119, 45, 0.2);
+            border-left-color: var(--color-accent);
+        }
+        
+        .nav-icon {
+            font-size: 1.2rem;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+        }
+        
+        .header {
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h2 {
+            font-size: 1.75rem;
+            color: var(--color-dark);
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        /* Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .stat-icon.primary { background: rgba(26, 77, 46, 0.1); }
+        .stat-icon.success { background: rgba(72, 187, 120, 0.1); }
+        .stat-icon.warning { background: rgba(237, 137, 54, 0.1); }
+        .stat-icon.info { background: rgba(66, 153, 225, 0.1); }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-dark);
+        }
+        
+        .stat-label {
+            color: var(--color-text-light);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+        
+        /* Content Card */
+        .content-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+        
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--color-border);
+        }
+        
+        .content-header h3 {
+            font-size: 1.25rem;
+            color: var(--color-dark);
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--color-secondary);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: var(--color-bg);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+        }
+        
+        .btn-secondary:hover {
+            background: white;
+        }
+        
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+        
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background: var(--color-bg);
+        }
+        
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--color-text-light);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+        
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+        
+        tbody tr:hover {
+            background: var(--color-bg);
+        }
+        
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .badge-new { background: #e6fffa; color: #047857; }
+        .badge-contacted { background: #fef3c7; color: #92400e; }
+        .badge-qualified { background: #dbeafe; color: #1e40af; }
+        .badge-proposal { background: #ede9fe; color: #5b21b6; }
+        .badge-won { background: #dcfce7; color: #166534; }
+        .badge-lost { background: #fee2e2; color: #991b1b; }
+        
+        /* Links Section */
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .link-card {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: block;
+        }
+        
+        .link-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(26, 77, 46, 0.3);
+        }
+        
+        .link-card h4 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .link-card p {
+            opacity: 0.9;
+            margin-bottom: 1rem;
+        }
+        
+        .link-url {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Form */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--color-text);
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(26, 77, 46, 0.1);
+        }
+        
+        /* Proposal Preview */
+        .proposal-preview {
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 3rem;
+            max-width: 800px;
+            margin: 2rem auto;
+        }
+        
+        .proposal-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--color-primary);
+        }
+        
+        .proposal-header h1 {
+            color: var(--color-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .proposal-section {
+            margin-bottom: 2rem;
+        }
+        
+        .proposal-section h3 {
+            color: var(--color-primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+        
+        .services-list {
+            list-style: none;
+            margin: 1rem 0;
+        }
+        
+        .services-list li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .total-section {
+            background: var(--color-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+        
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--color-border);
+        }
+        
+        .tab {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+            font-weight: 600;
+            color: var(--color-text-light);
+        }
+        
+        .tab:hover {
+            color: var(--color-text);
+        }
+        
+        .tab.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+        
+        /* View */
+        .view {
+            display: none;
+        }
+        
+        .view.active {
+            display: block;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--color-text-light);
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+        
+        /* Responsive */
+        @media (max-width: 968px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Alert */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h1>DCont</h1>
+                <p>Portal Administrativo</p>
+            </div>
+            
+            <ul class="nav">
+                <li class="nav-item active" data-view="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </li>
+                <li class="nav-item" data-view="leads">
+                    <span class="nav-icon">👥</span>
+                    <span>Leads</span>
+                </li>
+                <li class="nav-item" data-view="propostas">
+                    <span class="nav-icon">📝</span>
+                    <span>Gerar Proposta</span>
+                </li>
+                <li class="nav-item" data-view="links">
+                    <span class="nav-icon">🔗</span>
+                    <span>Links & Recursos</span>
+                </li>
+                <li class="nav-item" data-view="config">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Configurações</span>
+                </li>
+            </ul>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard View -->
+            <div class="view active" id="dashboard">
+                <div class="header">
+                    <h2>Dashboard</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary btn-small" onclick="syncLeads()">
+                            🔄 Sincronizar
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-value" id="totalLeads">-</div>
+                                <div class="stat-label">Total de Leads</div>
+                            </div>
+                            <div class="stat-icon primary">👥</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-value" id="leadsHoje">-</div>
+                                <div class="stat-label">Leads Hoje</div>
+                            </div>
+                            <div class="stat-icon success">📈</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-value" id="leadsEmana">-</div>
+                                <div class="stat-label">Leads Esta Semana</div>
+                            </div>
+                            <div class="stat-icon warning">📅</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-value" id="taxaConversao">-</div>
+                                <div class="stat-label">Taxa de Conversão</div>
+                            </div>
+                            <div class="stat-icon info">💰</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="content-card">
+                    <div class="content-header">
+                        <h3>Leads Recentes</h3>
+                        <button class="btn btn-primary btn-small" onclick="showView('leads')">
+                            Ver Todos
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Nome</th>
+                                    <th>Empresa</th>
+                                    <th>Faturamento</th>
+                                    <th>Desafio</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentLeadsTable">
+                                <tr>
+                                    <td colspan="7" class="empty-state">
+                                        <div class="empty-state-icon">📊</div>
+                                        <p>Carregando leads...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Leads View -->
+            <div class="view" id="leads">
+                <div class="header">
+                    <h2>Gestão de Leads</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary btn-small" onclick="exportLeads()">
+                            📥 Exportar
+                        </button>
+                        <button class="btn btn-primary btn-small" onclick="syncLeads()">
+                            🔄 Sincronizar
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="content-card">
+                    <div class="tabs">
+                        <div class="tab active" data-filter="todos">Todos</div>
+                        <div class="tab" data-filter="novo">Novos</div>
+                        <div class="tab" data-filter="contacted">Contatados</div>
+                        <div class="tab" data-filter="qualified">Qualificados</div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Nome</th>
+                                    <th>E-mail</th>
+                                    <th>Telefone</th>
+                                    <th>Empresa</th>
+                                    <th>Faturamento</th>
+                                    <th>Desafio</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allLeadsTable">
+                                <tr>
+                                    <td colspan="9" class="empty-state">
+                                        <div class="empty-state-icon">👥</div>
+                                        <p>Nenhum lead encontrado</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Propostas View -->
+            <div class="view" id="propostas">
+                <div class="header">
+                    <h2>Gerador de Propostas</h2>
+                </div>
+                
+                <div class="content-card">
+                    <div class="content-header">
+                        <h3>📝 Dados do Cliente</h3>
+                    </div>
+                    
+                    <form id="proposalForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Nome do Cliente *</label>
+                                <input type="text" id="clientName" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Empresa *</label>
+                                <input type="text" id="clientCompany" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>E-mail</label>
+                                <input type="email" id="clientEmail">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Telefone</label>
+                                <input type="tel" id="clientPhone">
+                            </div>
+                        </div>
+                        
+                        <div class="content-header" style="margin-top: 2rem;">
+                            <h3>💼 Serviços</h3>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Pacote de Serviços</label>
+                            <select id="servicePackage" onchange="updateProposal()">
+                                <option value="">Selecione um pacote...</option>
+                                <option value="diagnostico">Diagnóstico 360° - R$ 2.500</option>
+                                <option value="planejamento">Planejamento Tributário - R$ 3.500-8.000/mês</option>
+                                <option value="controladoria">Controladoria - R$ 4.000-10.000/mês</option>
+                                <option value="processos">Processos - R$ 5.000-12.000</option>
+                                <option value="inteligencia">Inteligência de Dados - R$ 4.000-9.000/mês</option>
+                                <option value="completo">Gestão 360° - R$ 8.000-20.000/mês</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Valor do Investimento (R$)</label>
+                            <input type="number" id="proposalValue" step="100" onchange="updateProposal()">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Observações / Customizações</label>
+                            <textarea id="proposalNotes" rows="4"></textarea>
+                        </div>
+                        
+                        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                            <button type="button" class="btn btn-primary" onclick="generateProposal()">
+                                📄 Gerar Proposta
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="downloadProposal()">
+                                📥 Baixar PDF
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div id="proposalPreviewContainer" style="display: none;">
+                    <div class="proposal-preview" id="proposalPreview">
+                        <!-- Proposta será gerada aqui -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Links View -->
+            <div class="view" id="links">
+                <div class="header">
+                    <h2>Links & Recursos</h2>
+                </div>
+                
+                <div class="content-card">
+                    <div class="content-header">
+                        <h3>🌐 Links Públicos</h3>
+                    </div>
+                    
+                    <div class="links-grid">
+                        <div class="link-card">
+                            <h4>🏠 Landing Page</h4>
+                            <p>Página principal de captura de leads</p>
+                            <div class="link-url" id="landingUrl">https://marantmir.github.io/dcont-landing-page/</div>
+                            <button class="copy-btn" onclick="copyLink('landingUrl')">📋 Copiar Link</button>
+                        </div>
+                        
+                        <div class="link-card">
+                            <h4>📊 Apresentação</h4>
+                            <p>Apresentação comercial interativa</p>
+                            <div class="link-url" id="apresentacaoUrl">https://marantmir.github.io/dcont-landing-page/apresentacao-dcont.html</div>
+                            <button class="copy-btn" onclick="copyLink('apresentacaoUrl')">📋 Copiar Link</button>
+                        </div>
+                        
+                        <div class="link-card">
+                            <h4>📋 Planilha de Leads</h4>
+                            <p>Acesso à base de dados no Google Sheets</p>
+                            <div class="link-url" id="sheetsUrl">https://docs.google.com/spreadsheets/d/1Ba7oCFqo6fYlQ3ElJcLERPopw_VIKGwNrFqTxCv9-ik</div>
+                            <button class="copy-btn" onclick="copyLink('sheetsUrl')">📋 Copiar Link</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="content-card" style="margin-top: 2rem;">
+                    <div class="content-header">
+                        <h3>🔗 QR Codes</h3>
+                    </div>
+                    <p style="color: var(--color-text-light); margin-bottom: 1rem;">
+                        Use estes links para gerar QR Codes:
+                    </p>
+                    <div class="links-grid">
+                        <a href="https://www.qr-code-generator.com/" target="_blank" class="link-card">
+                            <h4>QR Code Generator</h4>
+                            <p>Gerador gratuito de QR Codes</p>
+                        </a>
+                        
+                        <a href="https://bitly.com/" target="_blank" class="link-card">
+                            <h4>Bitly</h4>
+                            <p>Encurtador de links com analytics</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Config View -->
+            <div class="view" id="config">
+                <div class="header">
+                    <h2>Configurações</h2>
+                </div>
+                
+                <div class="content-card">
+                    <div class="content-header">
+                        <h3>🔧 Configurações do Sistema</h3>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>ID da Planilha Google Sheets</label>
+                        <input type="text" id="spreadsheetId" value="1Ba7oCFqo6fYlQ3ElJcLERPopw_VIKGwNrFqTxCv9-ik">
+                        <small style="color: var(--color-text-light); display: block; margin-top: 0.5rem;">
+                            ID encontrado na URL da planilha
+                        </small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>URL da API do Google Apps Script</label>
+                        <input type="text" id="apiUrl" placeholder="https://script.google.com/macros/s/.../exec">
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="saveConfig()">
+                        💾 Salvar Configurações
+                    </button>
+                </div>
+                
+                <div class="content-card" style="margin-top: 2rem;">
+                    <div class="content-header">
+                        <h3>ℹ️ Sobre o Sistema</h3>
+                    </div>
+                    <p><strong>Versão:</strong> 1.0.0</p>
+                    <p><strong>Desenvolvido para:</strong> DCont Soluções Contábeis</p>
+                    <p><strong>Funcionalidades:</strong></p>
+                    <ul style="list-style: none; margin-top: 1rem;">
+                        <li>✅ Dashboard com métricas em tempo real</li>
+                        <li>✅ Gestão completa de leads</li>
+                        <li>✅ Gerador de propostas comerciais</li>
+                        <li>✅ Central de links e recursos</li>
+                        <li>✅ Integração com Google Sheets</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        // Dados simulados (substituir por integração real)
+        let leadsData = [];
+        
+        // Configuração
+        const SPREADSHEET_ID = '1Ba7oCFqo6fYlQ3ElJcLERPopw_VIKGwNrFqTxCv9-ik';
+        
+        // Navegação
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const viewName = item.dataset.view;
+                showView(viewName);
+            });
+        });
+        
+        function showView(viewName) {
+            // Atualiza nav
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.toggle('active', item.dataset.view === viewName);
+            });
+            
+            // Atualiza view
+            document.querySelectorAll('.view').forEach(view => {
+                view.classList.toggle('active', view.id === viewName);
+            });
+        }
+        
+        // Sincronizar leads
+        async function syncLeads() {
+            try {
+                const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json`;
+                const response = await fetch(url);
+                const text = await response.text();
+                
+                // Parse Google Sheets JSON
+                const json = JSON.parse(text.substr(47).slice(0, -2));
+                const rows = json.table.rows;
+                
+                leadsData = rows.slice(1).map(row => ({
+                    data: row.c[0]?.f || '',
+                    nome: row.c[1]?.v || '',
+                    email: row.c[2]?.v || '',
+                    telefone: row.c[3]?.v || '',
+                    empresa: row.c[4]?.v || '',
+                    faturamento: row.c[5]?.v || '',
+                    desafio: row.c[6]?.v || '',
+                    mensagem: row.c[7]?.v || '',
+                    origem: row.c[8]?.v || '',
+                    status: row.c[9]?.v || 'Novo'
+                }));
+                
+                updateDashboard();
+                updateLeadsTable();
+                
+                showAlert('Dados sincronizados com sucesso!', 'success');
+            } catch (error) {
+                console.error('Erro ao sincronizar:', error);
+                showAlert('Erro ao sincronizar dados. Verifique a configuração.', 'error');
+                
+                // Dados de exemplo para demonstração
+                loadDemoData();
+            }
+        }
+        
+        // Carregar dados de exemplo
+        function loadDemoData() {
+            leadsData = [
+                {
+                    data: new Date().toLocaleDateString('pt-BR'),
+                    nome: 'João Silva',
+                    email: 'joao@empresa.com',
+                    telefone: '(16) 99999-9999',
+                    empresa: 'Empresa ABC Ltda',
+                    faturamento: 'R$ 2 a R$ 5 milhões',
+                    desafio: 'Reduzir Carga Tributária',
+                    mensagem: 'Precisamos otimizar nossa gestão',
+                    origem: 'Landing Page',
+                    status: 'Novo - Diagnóstico'
+                },
+                {
+                    data: new Date().toLocaleDateString('pt-BR'),
+                    nome: 'Maria Santos',
+                    email: 'maria@empresa.com',
+                    telefone: '(16) 98888-8888',
+                    empresa: 'Comércio XYZ',
+                    faturamento: 'R$ 500 mil a R$ 2 milhões',
+                    desafio: 'Organizar Gestão Financeira',
+                    mensagem: 'Crescimento desorganizado',
+                    origem: 'Landing Page',
+                    status: 'Novo - Diagnóstico'
+                }
+            ];
+            
+            updateDashboard();
+            updateLeadsTable();
+        }
+        
+        // Atualizar dashboard
+        function updateDashboard() {
+            const hoje = new Date().toLocaleDateString('pt-BR');
+            const leadsHoje = leadsData.filter(l => l.data === hoje).length;
+            
+            document.getElementById('totalLeads').textContent = leadsData.length;
+            document.getElementById('leadsHoje').textContent = leadsHoje;
+            document.getElementById('leadsEmana').textContent = leadsData.length; // Simplificado
+            document.getElementById('taxaConversao').textContent = '15%'; // Exemplo
+            
+            updateRecentLeadsTable();
+        }
+        
+        // Atualizar tabela de leads recentes
+        function updateRecentLeadsTable() {
+            const tbody = document.getElementById('recentLeadsTable');
+            const recent = leadsData.slice(0, 5);
+            
+            if (recent.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <div class="empty-state-icon">📊</div>
+                            <p>Nenhum lead encontrado</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = recent.map(lead => `
+                <tr>
+                    <td>${lead.data}</td>
+                    <td>${lead.nome}</td>
+                    <td>${lead.empresa || '-'}</td>
+                    <td>${lead.faturamento || '-'}</td>
+                    <td>${lead.desafio || '-'}</td>
+                    <td><span class="badge badge-new">Novo</span></td>
+                    <td>
+                        <button class="btn btn-secondary btn-small" onclick="generateProposalFromLead('${lead.nome}', '${lead.empresa}', '${lead.email}', '${lead.telefone}')">
+                            📝 Proposta
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Atualizar tabela completa de leads
+        function updateLeadsTable() {
+            const tbody = document.getElementById('allLeadsTable');
+            
+            if (leadsData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="empty-state">
+                            <div class="empty-state-icon">👥</div>
+                            <p>Nenhum lead encontrado. Clique em "Sincronizar" para buscar dados.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = leadsData.map(lead => `
+                <tr>
+                    <td>${lead.data}</td>
+                    <td>${lead.nome}</td>
+                    <td>${lead.email}</td>
+                    <td>${lead.telefone}</td>
+                    <td>${lead.empresa || '-'}</td>
+                    <td>${lead.faturamento || '-'}</td>
+                    <td>${lead.desafio || '-'}</td>
+                    <td><span class="badge badge-new">Novo</span></td>
+                    <td>
+                        <button class="btn btn-primary btn-small" onclick="generateProposalFromLead('${lead.nome}', '${lead.empresa}', '${lead.email}', '${lead.telefone}')">
+                            📝 Proposta
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Gerar proposta a partir de lead
+        function generateProposalFromLead(nome, empresa, email, telefone) {
+            showView('propostas');
+            document.getElementById('clientName').value = nome;
+            document.getElementById('clientCompany').value = empresa || '';
+            document.getElementById('clientEmail').value = email || '';
+            document.getElementById('clientPhone').value = telefone || '';
+        }
+        
+        // Gerar proposta
+        function generateProposal() {
+            const clientName = document.getElementById('clientName').value;
+            const clientCompany = document.getElementById('clientCompany').value;
+            const packageSelect = document.getElementById('servicePackage');
+            const packageValue = document.getElementById('proposalValue').value;
+            const notes = document.getElementById('proposalNotes').value;
+            
+            if (!clientName || !clientCompany) {
+                showAlert('Preencha os dados do cliente', 'error');
+                return;
+            }
+            
+            const packageText = packageSelect.options[packageSelect.selectedIndex].text;
+            
+            const proposalHTML = `
+                <div class="proposal-header">
+                    <h1>PROPOSTA COMERCIAL</h1>
+                    <p>DCont Soluções Contábeis</p>
+                    <p>${new Date().toLocaleDateString('pt-BR')}</p>
+                </div>
+                
+                <div class="proposal-section">
+                    <h3>Cliente</h3>
+                    <p><strong>${clientName}</strong></p>
+                    <p>${clientCompany}</p>
+                </div>
+                
+                <div class="proposal-section">
+                    <h3>Sobre a DCont</h3>
+                    <p>A DCont Soluções Contábeis atua como parceira estratégica de empresas em expansão, transformando contabilidade em vantagem competitiva através de gestão orientada por dados.</p>
+                </div>
+                
+                <div class="proposal-section">
+                    <h3>Solução Proposta</h3>
+                    <p><strong>${packageText}</strong></p>
+                    ${notes ? `<p>${notes}</p>` : ''}
+                </div>
+                
+                <div class="proposal-section">
+                    <h3>Investimento</h3>
+                    <div class="total-section">
+                        <div class="total-row">
+                            <span>Valor Total:</span>
+                            <span>R$ ${parseFloat(packageValue || 0).toLocaleString('pt-BR')}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="proposal-section">
+                    <h3>Próximos Passos</h3>
+                    <ol>
+                        <li>Aprovação da proposta</li>
+                        <li>Assinatura do contrato</li>
+                        <li>Início do Diagnóstico 360°</li>
+                        <li>Apresentação do plano estratégico</li>
+                    </ol>
+                </div>
+                
+                <div class="proposal-section" style="text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 2px solid var(--color-primary);">
+                    <p><strong>DCont Soluções Contábeis</strong></p>
+                    <p>contato@dcont.com.br | (16) 99999-9999</p>
+                    <p>Contabilidade Estratégica e Gestão Orientada por Dados</p>
+                </div>
+            `;
+            
+            document.getElementById('proposalPreview').innerHTML = proposalHTML;
+            document.getElementById('proposalPreviewContainer').style.display = 'block';
+            
+            showAlert('Proposta gerada com sucesso!', 'success');
+        }
+        
+        // Download PDF (simplificado - usar biblioteca como jsPDF para produção)
+        function downloadProposal() {
+            window.print();
+        }
+        
+        // Copiar link
+        function copyLink(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                showAlert('Link copiado!', 'success');
+            });
+        }
+        
+        // Exportar leads
+        function exportLeads() {
+            const csv = [
+                ['Data', 'Nome', 'E-mail', 'Telefone', 'Empresa', 'Faturamento', 'Desafio', 'Status'],
+                ...leadsData.map(lead => [
+                    lead.data, lead.nome, lead.email, lead.telefone,
+                    lead.empresa, lead.faturamento, lead.desafio, lead.status
+                ])
+            ].map(row => row.join(',')).join('\n');
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `leads-dcont-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            
+            showAlert('Leads exportados com sucesso!', 'success');
+        }
+        
+        // Salvar configurações
+        function saveConfig() {
+            showAlert('Configurações salvas!', 'success');
+        }
+        
+        // Mostrar alerta
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            
+            const mainContent = document.querySelector('.main-content');
+            mainContent.insertBefore(alertDiv, mainContent.firstChild);
+            
+            setTimeout(() => alertDiv.remove(), 3000);
+        }
+        
+        // Tabs
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+        
+        // Inicializar
+        window.addEventListener('load', () => {
+            loadDemoData(); // Carregar dados de exemplo
+            // syncLeads(); // Descomente para carregar dados reais
+        });
+    </script>
+</body>
+</html>
