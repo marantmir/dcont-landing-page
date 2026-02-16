@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DCont - Login DEBUG</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0d1f14 0%, #1a4d2e 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .debug-card {
+            background: #1a1a1a;
+            border-radius: 20px;
+            padding: 2rem;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .logo h1 {
+            font-size: 2rem;
+            color: #1a4d2e;
+            margin-bottom: 0.5rem;
+        }
+        
+        .logo p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #1a4d2e;
+            box-shadow: 0 0 0 3px rgba(26, 77, 46, 0.1);
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #4f772d, #1a4d2e);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            border-left: 3px solid #00ff00;
+            background: rgba(0, 255, 0, 0.05);
+        }
+        
+        .log-error {
+            border-left-color: #ff0000;
+            color: #ff6666;
+            background: rgba(255, 0, 0, 0.05);
+        }
+        
+        .log-success {
+            border-left-color: #00ff00;
+            color: #00ff00;
+        }
+        
+        .log-info {
+            border-left-color: #00aaff;
+            color: #00aaff;
+        }
+        
+        h3 {
+            color: #00ff00;
+            margin: 1rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #00ff00;
+        }
+        
+        @media (max-width: 968px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Card -->
+        <div class="login-card">
+            <div class="logo">
+                <h1>🔐 DCont - Login DEBUG</h1>
+                <p>Versão com logs detalhados</p>
+            </div>
+            
+            <div id="alertBox" class="alert" style="display: none;"></div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        placeholder="seu@email.com"
+                        required
+                        autocomplete="email"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        placeholder="••••••••"
+                        required
+                        autocomplete="current-password"
+                    >
+                </div>
+                
+                <button type="submit" class="btn-login" id="loginBtn">
+                    Entrar
+                </button>
+            </form>
+            
+            <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e0e0e0;">
+                <p style="font-size: 0.9rem; color: #666;">
+                    <strong>Instruções:</strong><br>
+                    1. Digite e-mail e senha<br>
+                    2. Observe os logs à direita<br>
+                    3. Me envie print dos logs se der erro
+                </p>
+            </div>
+        </div>
+        
+        <!-- Debug Console -->
+        <div class="debug-card">
+            <h3>📋 Console de Debug</h3>
+            <div id="debugConsole"></div>
+        </div>
+    </div>
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        
+        // =============================================
+        // DEBUG LOGGER
+        // =============================================
+        const debugConsole = document.getElementById('debugConsole');
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString('pt-BR');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${timestamp}] ${message}`;
+            debugConsole.appendChild(entry);
+            debugConsole.scrollTop = debugConsole.scrollHeight;
+            console.log(`[${type}]`, message);
+        }
+        
+        // =============================================
+        // FIREBASE CONFIG
+        // =============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDtRTKhlogKi9DGp_7kRWDVkeLFzAWMHek",
+            authDomain: "dcont-portal.firebaseapp.com",
+            projectId: "dcont-portal",
+            storageBucket: "dcont-portal.firebasestorage.app",
+            messagingSenderId: "440147165990",
+            appId: "1:440147165990:web:32370de307654bb61db7e7",
+            measurementId: "G-9SEK71JHJ7"
+        };
+        
+        log('🔥 Iniciando Firebase...', 'info');
+        log(`Project ID: ${firebaseConfig.projectId}`, 'info');
+        log(`Auth Domain: ${firebaseConfig.authDomain}`, 'info');
+        
+        let app, auth;
+        
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            log('✅ Firebase inicializado com sucesso!', 'success');
+        } catch (error) {
+            log(`❌ ERRO ao inicializar Firebase: ${error.message}`, 'error');
+            log(`Código do erro: ${error.code}`, 'error');
+        }
+        
+        // =============================================
+        // LOGIN FORM
+        // =============================================
+        const loginForm = document.getElementById('loginForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const alertBox = document.getElementById('alertBox');
+        
+        function showAlert(message, type) {
+            alertBox.textContent = message;
+            alertBox.className = `alert alert-${type}`;
+            alertBox.style.display = 'block';
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 5000);
+        }
+        
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            log('─────────────────────────────', 'info');
+            log('📝 Tentativa de login iniciada', 'info');
+            log(`E-mail: ${email}`, 'info');
+            log(`Senha: ${'*'.repeat(password.length)} (${password.length} caracteres)`, 'info');
+            
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Entrando...';
+            
+            try {
+                log('🔐 Chamando signInWithEmailAndPassword...', 'info');
+                
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                
+                log('✅ AUTENTICAÇÃO BEM-SUCEDIDA!', 'success');
+                log(`User ID: ${userCredential.user.uid}`, 'success');
+                log(`E-mail verificado: ${userCredential.user.emailVerified}`, 'info');
+                log(`Provider: ${userCredential.user.providerId}`, 'info');
+                
+                showAlert('✅ Login realizado com sucesso!', 'success');
+                
+                // Verificar se arquivo de destino existe
+                log('🔍 Verificando arquivo de destino...', 'info');
+                
+                const targetFile = 'portal-administrativo-dcont.html';
+                log(`Arquivo alvo: ${targetFile}`, 'info');
+                
+                // Testar se arquivo existe
+                try {
+                    const response = await fetch(targetFile, { method: 'HEAD' });
+                    if (response.ok) {
+                        log(`✅ Arquivo ${targetFile} encontrado!`, 'success');
+                    } else {
+                        log(`⚠️ Arquivo ${targetFile} não encontrado (status: ${response.status})`, 'error');
+                        log('💡 Certifique-se que o arquivo está na mesma pasta', 'info');
+                    }
+                } catch (fetchError) {
+                    log(`⚠️ Erro ao verificar arquivo: ${fetchError.message}`, 'error');
+                }
+                
+                log('🔄 Aguardando 2 segundos antes do redirecionamento...', 'info');
+                
+                setTimeout(() => {
+                    log(`🚀 REDIRECIONANDO para: ${targetFile}`, 'success');
+                    log(`URL atual: ${window.location.href}`, 'info');
+                    log(`URL destino: ${window.location.origin}/${targetFile}`, 'info');
+                    
+                    window.location.href = targetFile;
+                    
+                    // Verificar se redirecionou
+                    setTimeout(() => {
+                        log('⚠️ Ainda na página de login após 1 segundo', 'error');
+                        log('❌ Redirecionamento FALHOU!', 'error');
+                        log(`URL atual: ${window.location.href}`, 'error');
+                    }, 1000);
+                    
+                }, 2000);
+                
+            } catch (error) {
+                log('❌ ERRO NA AUTENTICAÇÃO!', 'error');
+                log(`Código: ${error.code}`, 'error');
+                log(`Mensagem: ${error.message}`, 'error');
+                
+                if (error.stack) {
+                    log(`Stack: ${error.stack.substring(0, 200)}...`, 'error');
+                }
+                
+                let errorMessage = '❌ Erro ao fazer login.';
+                
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                        errorMessage = '❌ E-mail inválido.';
+                        log('💡 Verifique o formato do e-mail', 'info');
+                        break;
+                    case 'auth/user-not-found':
+                        errorMessage = '❌ Usuário não encontrado.';
+                        log('💡 Crie este usuário no Firebase Console → Authentication', 'info');
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage = '❌ Senha incorreta.';
+                        log('💡 Verifique a senha no Firebase Console', 'info');
+                        break;
+                    case 'auth/invalid-credential':
+                        errorMessage = '❌ E-mail ou senha incorretos.';
+                        log('💡 Verifique ambos no Firebase Console', 'info');
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = '❌ Muitas tentativas. Aguarde alguns minutos.';
+                        break;
+                }
+                
+                showAlert(errorMessage, 'error');
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Entrar';
+            }
+        });
+        
+        log('✅ Página de login carregada e pronta!', 'success');
+        log('👉 Digite e-mail e senha e clique em Entrar', 'info');
+        
+    </script>
+</body>
+</html>
