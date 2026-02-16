@@ -3,367 +3,405 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DCont - Portal de Administração</title>
-    
+    <title>DCont - Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- 
-    ==============================================
-    🔥 CONFIGURAÇÃO FIREBASE + FIRESTORE
-    ==============================================
-    1. Ative o Firestore no Firebase Console
-    2. Configure as regras (veja GUIA-FIRESTORE-SETUP.md)
-    3. Cole suas credenciais abaixo
-    ==============================================
-    -->
-    
     <style>
-        /* [CSS IGUAL AO ANTERIOR - OMITIDO POR BREVIDADE] */
-        /* Copie o CSS completo do portal-dcont-corrigido.html */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f8f9fa; }
+        
+        #loadingScreen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #0d1f14, #1a4d2e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: white;
+            z-index: 9999;
+        }
+        .spinner { 
+            width: 60px; 
+            height: 60px; 
+            border: 4px solid rgba(255,255,255,0.3); 
+            border-top-color: white; 
+            border-radius: 50%; 
+            animation: spin 1s linear infinite; 
+            margin-bottom: 1rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .app-container { display: none; min-height: 100vh; }
+        .app-container.loaded { display: block; }
+        
+        .header {
+            background: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 { color: #1a4d2e; font-size: 1.5rem; }
+        .user-info { display: flex; align-items: center; gap: 1rem; }
+        .btn-logout {
+            background: #f56565;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .content { max-width: 1400px; margin: 2rem auto; padding: 0 2rem; }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-left: 4px solid #1a4d2e;
+        }
+        .stat-value { font-size: 2.5rem; font-weight: 700; color: #1a4d2e; }
+        .stat-label { color: #666; margin-top: 0.5rem; }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #1a4d2e, #4f772d);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .btn-primary:hover { opacity: 0.9; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th { padding: 1rem; text-align: left; background: #f8f9fa; font-weight: 600; }
+        td { padding: 1rem; border-top: 1px solid #e0e0e0; }
+        tr:hover { background: #f8f9fa; }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+        .alert-success { background: #d1fae5; color: #065f46; }
+        .alert-error { background: #fee2e2; color: #991b1b; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #999;
+        }
     </style>
 </head>
 <body>
-    <!-- [HTML IGUAL - SIDEBAR E NAVEGAÇÃO] -->
+    <!-- Loading -->
+    <div id="loadingScreen">
+        <div class="spinner"></div>
+        <div>Verificando autenticação...</div>
+    </div>
+    
+    <!-- App -->
+    <div class="app-container" id="appContainer">
+        <header class="header">
+            <h1>🏢 DCont - Portal Administrativo</h1>
+            <div class="user-info">
+                <span id="userEmail">Carregando...</span>
+                <button class="btn-logout" onclick="logout()">Sair</button>
+            </div>
+        </header>
+        
+        <div class="content">
+            <div id="alertContainer"></div>
+            
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalLeads">0</div>
+                    <div class="stat-label">Total de Leads</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="leadsHoje">0</div>
+                    <div class="stat-label">Leads Hoje</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="leadsEmana">0</div>
+                    <div class="stat-label">Esta Semana</div>
+                </div>
+            </div>
+            
+            <!-- Leads -->
+            <div class="card">
+                <h2 style="margin-bottom: 1.5rem;">📊 Leads Recentes</h2>
+                <button class="btn-primary" onclick="loadLeads()" style="margin-bottom: 1rem;">🔄 Atualizar</button>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Nome</th>
+                            <th>E-mail</th>
+                            <th>Empresa</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leadsTable">
+                        <tr>
+                            <td colspan="5" class="empty-state">Clique em "Atualizar" para carregar</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
     
     <!-- Firebase SDK -->
     <script type="module">
-        // Imports do Firebase
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getFirestore, collection, addDoc, getDocs, query, orderBy, where, updateDoc, doc, Timestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, collection, getDocs, query, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
         
-        // SUAS CREDENCIAIS FIREBASE
+        // ============================================
+        // COLE SUAS CREDENCIAIS AQUI
+        // ============================================
         const firebaseConfig = {
-  			apiKey: "AIzaSyDtRTKhlogKi9DGp_7kRWDVkeLFzAWMHek",
-  			authDomain: "dcont-portal.firebaseapp.com",
-  			projectId: "dcont-portal",
-  			storageBucket: "dcont-portal.firebasestorage.app",
-  			messagingSenderId: "440147165990",
-  			appId: "1:440147165990:web:32370de307654bb61db7e7",
-  			measurementId: "G-9SEK71JHJ7"
-		};
+            apiKey: "AIzaSyDWJzptV6lJ1KohMvNuZZUcr5LU_UwRb0c",
+            authDomain: "dcont-portal.firebaseapp.com",
+            projectId: "dcont-portal",
+            storageBucket: "dcont-portal.firebasestorage.app",
+            messagingSenderId: "1048012690481",
+            appId: "1:1048012690481:web:26c8f5e02b70a2d00a6c43"
+        };
         
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        console.log('🔥 Inicializando Firebase...');
         
-        // Estado global
-        let currentUser = null;
+        let db, auth, currentUser;
         
-        // Verificar autenticação
-        onAuthStateChanged(auth, (user) => {
-            const loadingScreen = document.getElementById('loadingScreen');
-            const appContainer = document.getElementById('appContainer');
+        try {
+            // Inicializar Firebase
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
             
-            if (user) {
-                currentUser = user;
-                document.getElementById('userEmail').textContent = user.email;
-                loadingScreen.style.display = 'none';
-                appContainer.style.display = 'grid';
-                
-                // Inicializar app
-                window.initializeApp();
+            console.log('✅ Firebase inicializado com sucesso!');
+            
+            // Aguardar DOM estar pronto
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initAuth);
             } else {
-                window.location.href = 'login-dcont.html';
+                initAuth();
             }
-        });
+            
+        } catch (error) {
+            console.error('❌ ERRO CRÍTICO ao inicializar Firebase:', error);
+            showError('Erro ao inicializar Firebase: ' + error.message);
+        }
+        
+        // Inicializar autenticação
+        function initAuth() {
+            console.log('📡 Configurando autenticação...');
+            
+            onAuthStateChanged(auth, (user) => {
+                console.log('🔐 Estado de autenticação mudou:', user ? 'LOGADO' : 'NÃO LOGADO');
+                
+                const loadingScreen = document.getElementById('loadingScreen');
+                const appContainer = document.getElementById('appContainer');
+                const userEmailEl = document.getElementById('userEmail');
+                
+                if (user) {
+                    console.log('✅ Usuário autenticado:', user.email);
+                    currentUser = user;
+                    
+                    // Atualizar interface
+                    if (userEmailEl) {
+                        userEmailEl.textContent = user.email;
+                    }
+                    
+                    // Esconder loading
+                    if (loadingScreen) {
+                        loadingScreen.style.display = 'none';
+                    }
+                    
+                    // Mostrar app
+                    if (appContainer) {
+                        appContainer.classList.add('loaded');
+                    }
+                    
+                    // Carregar dados
+                    setTimeout(() => {
+                        window.loadLeads();
+                    }, 500);
+                    
+                } else {
+                    console.log('❌ Usuário NÃO autenticado - Redirecionando...');
+                    
+                    // Verificar se já está na página de login
+                    if (!window.location.href.includes('login')) {
+                        window.location.href = 'login-dcont.html';
+                    }
+                }
+            });
+        }
         
         // Logout
         window.logout = async () => {
-            if (confirm('Deseja sair?')) {
+            if (confirm('Deseja sair do sistema?')) {
                 try {
+                    console.log('👋 Fazendo logout...');
                     await signOut(auth);
                     window.location.href = 'login-dcont.html';
                 } catch (error) {
-                    alert('Erro ao sair');
+                    console.error('❌ Erro ao fazer logout:', error);
+                    alert('Erro ao sair: ' + error.message);
                 }
             }
         };
         
-        // Inicializar app
-        window.initializeApp = async () => {
-            console.log('App inicializado com Firebase Firestore');
-            await loadLeads();
-            await loadProjects();
-        };
-        
-        // LEADS - Carregar do Firestore
+        // Carregar leads
         window.loadLeads = async () => {
+            console.log('📥 Iniciando carregamento de leads...');
+            showAlert('🔄 Carregando leads do Firebase...', 'success');
+            
             try {
-                showAlert('🔄 Carregando leads...', 'success');
+                if (!db) {
+                    throw new Error('Firestore não inicializado');
+                }
                 
+                console.log('🔍 Buscando coleção "leads"...');
                 const leadsRef = collection(db, 'leads');
-                const q = query(leadsRef, orderBy('createdAt', 'desc'));
-                const querySnapshot = await getDocs(q);
+                const q = query(leadsRef, orderBy('createdAt', 'desc'), limit(50));
                 
-                window.leadsData = [];
-                querySnapshot.forEach((doc) => {
+                console.log('⏳ Executando query...');
+                const snapshot = await getDocs(q);
+                
+                console.log(`✅ Query executada! Leads encontrados: ${snapshot.size}`);
+                
+                const leads = [];
+                snapshot.forEach(doc => {
                     const data = doc.data();
-                    window.leadsData.push({
+                    leads.push({
                         id: doc.id,
                         ...data,
-                        data: data.createdAt?.toDate().toLocaleDateString('pt-BR') || 'N/A'
+                        data: data.createdAt?.toDate?.().toLocaleDateString('pt-BR') || 'N/A'
                     });
+                    console.log('📄 Lead:', data.nome || 'sem nome');
                 });
                 
-                updateDashboard();
-                updateLeadsTable();
-                showAlert(`✅ ${window.leadsData.length} leads carregados!`, 'success');
+                // Atualizar stats
+                const hoje = new Date().toLocaleDateString('pt-BR');
+                const totalLeads = leads.length;
+                const leadsHoje = leads.filter(l => l.data === hoje).length;
+                
+                console.log('📊 Atualizando estatísticas...');
+                document.getElementById('totalLeads').textContent = totalLeads;
+                document.getElementById('leadsHoje').textContent = leadsHoje;
+                document.getElementById('leadsEmana').textContent = totalLeads;
+                
+                // Atualizar tabela
+                console.log('📋 Atualizando tabela...');
+                const tbody = document.getElementById('leadsTable');
+                
+                if (leads.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="empty-state">✨ Nenhum lead ainda. Aguardando formulário da landing page!</td></tr>';
+                    showAlert('ℹ️ Nenhum lead encontrado ainda', 'success');
+                } else {
+                    tbody.innerHTML = leads.map(lead => `
+                        <tr>
+                            <td>${lead.data}</td>
+                            <td><strong>${lead.nome || 'N/A'}</strong></td>
+                            <td>${lead.email || 'N/A'}</td>
+                            <td>${lead.empresa || '-'}</td>
+                            <td><span style="background: #d1fae5; color: #065f46; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">${lead.status || 'novo'}</span></td>
+                        </tr>
+                    `).join('');
+                    
+                    showAlert(`✅ ${leads.length} lead${leads.length > 1 ? 's' : ''} carregado${leads.length > 1 ? 's' : ''} com sucesso!`, 'success');
+                }
                 
             } catch (error) {
-                console.error('Erro ao carregar leads:', error);
-                showAlert('❌ Erro ao carregar leads. Verifique o Firestore.', 'error');
-                window.leadsData = [];
-                updateDashboard();
-                updateLeadsTable();
+                console.error('❌ ERRO ao carregar leads:', error);
+                console.error('Detalhes do erro:', error.code, error.message);
+                
+                let errorMessage = 'Erro ao carregar leads: ';
+                
+                if (error.code === 'permission-denied') {
+                    errorMessage += 'Permissão negada. Verifique as regras do Firestore.';
+                } else if (error.message.includes('not initialized')) {
+                    errorMessage += 'Firestore não inicializado. Recarregue a página.';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                showAlert('❌ ' + errorMessage, 'error');
+                
+                document.getElementById('leadsTable').innerHTML = `
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            <div style="color: #991b1b;">
+                                <strong>Erro ao carregar leads</strong><br>
+                                ${errorMessage}<br><br>
+                                <button class="btn-primary" onclick="loadLeads()">🔄 Tentar Novamente</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
             }
         };
         
-        // LEADS - Atualizar status
-        window.updateLeadStatus = async (leadId, newStatus) => {
-            try {
-                const leadRef = doc(db, 'leads', leadId);
-                await updateDoc(leadRef, {
-                    status: newStatus,
-                    updatedAt: Timestamp.now()
-                });
-                
-                showAlert('✅ Status atualizado!', 'success');
-                await loadLeads();
-                
-            } catch (error) {
-                console.error('Erro:', error);
-                showAlert('❌ Erro ao atualizar status', 'error');
-            }
-        };
-        
-        // PROJETOS - Carregar
-        window.loadProjects = async () => {
-            try {
-                const projectsRef = collection(db, 'projects');
-                const q = query(projectsRef, orderBy('createdAt', 'desc'));
-                const querySnapshot = await getDocs(q);
-                
-                window.projectsData = [];
-                querySnapshot.forEach((doc) => {
-                    window.projectsData.push({
-                        id: doc.id,
-                        ...doc.data()
-                    });
-                });
-                
-                updateProjectsTable();
-                
-            } catch (error) {
-                console.error('Erro ao carregar projetos:', error);
-                window.projectsData = [];
-                updateProjectsTable();
-            }
-        };
-        
-        // PROJETOS - Criar
-        window.createProject = async () => {
-            const clientName = document.getElementById('projectClientName').value;
-            const clientCompany = document.getElementById('projectClientCompany').value;
-            const service = document.getElementById('projectService').value;
-            const value = document.getElementById('projectValue').value;
-            
-            if (!clientName || !service) {
-                alert('Preencha os campos obrigatórios');
-                return;
-            }
-            
-            try {
-                await addDoc(collection(db, 'projects'), {
-                    clientName,
-                    clientCompany,
-                    service,
-                    value: parseFloat(value) || 0,
-                    status: 'novo',
-                    progress: 0,
-                    createdBy: currentUser.email,
-                    createdAt: Timestamp.now(),
-                    updatedAt: Timestamp.now()
-                });
-                
-                showAlert('✅ Projeto criado!', 'success');
-                document.getElementById('projectForm').reset();
-                await loadProjects();
-                
-            } catch (error) {
-                console.error('Erro:', error);
-                showAlert('❌ Erro ao criar projeto', 'error');
-            }
-        };
-        
-        // PROJETOS - Atualizar status
-        window.updateProjectStatus = async (projectId, newStatus) => {
-            try {
-                const projectRef = doc(db, 'projects', projectId);
-                await updateDoc(projectRef, {
-                    status: newStatus,
-                    updatedAt: Timestamp.now()
-                });
-                
-                // Adicionar ao histórico
-                await addDoc(collection(db, 'history'), {
-                    projectId,
-                    type: 'status_change',
-                    description: `Status alterado para ${newStatus}`,
-                    oldValue: null,
-                    newValue: newStatus,
-                    createdBy: currentUser.email,
-                    createdAt: Timestamp.now()
-                });
-                
-                showAlert('✅ Status atualizado!', 'success');
-                await loadProjects();
-                
-            } catch (error) {
-                console.error('Erro:', error);
-                showAlert('❌ Erro ao atualizar', 'error');
-            }
-        };
-        
-        // PROJETOS - Atualizar progresso
-        window.updateProjectProgress = async (projectId, progress) => {
-            try {
-                const projectRef = doc(db, 'projects', projectId);
-                await updateDoc(projectRef, {
-                    progress: parseInt(progress),
-                    updatedAt: Timestamp.now()
-                });
-                
-                await loadProjects();
-                
-            } catch (error) {
-                console.error('Erro:', error);
-                showAlert('❌ Erro ao atualizar progresso', 'error');
-            }
-        };
-        
-        // Exportar para escopo global
-        window.db = db;
-        window.auth = auth;
-        window.currentUser = currentUser;
-    </script>
-    
-    <script>
-        // Variáveis globais
-        window.leadsData = [];
-        window.projectsData = [];
-        
-        // Navegação
-        function showView(viewName) {
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
-            document.getElementById(viewName).classList.add('active');
-            event.target.closest('.nav-item').classList.add('active');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-        
-        // Atualizar dashboard
-        function updateDashboard() {
-            const hoje = new Date().toLocaleDateString('pt-BR');
-            document.getElementById('totalLeads').textContent = window.leadsData.length;
-            document.getElementById('leadsHoje').textContent = window.leadsData.filter(l => l.data === hoje).length;
-            document.getElementById('leadsEmana').textContent = window.leadsData.length;
-            
-            const tbody = document.getElementById('leadsTable');
-            tbody.innerHTML = window.leadsData.slice(0, 5).map(lead => `
-                <tr>
-                    <td>${lead.data}</td>
-                    <td><strong>${lead.nome}</strong></td>
-                    <td>${lead.email}</td>
-                    <td>${lead.empresa || '-'}</td>
-                    <td>${lead.faturamento || '-'}</td>
-                    <td><span class="badge badge-new">${lead.status || 'Novo'}</span></td>
-                </tr>
-            `).join('') || '<tr><td colspan="6" class="empty-state"><div class="empty-state-icon">📊</div><p>Nenhum lead</p></td></tr>';
-        }
-        
-        // Atualizar tabela de leads
-        function updateLeadsTable() {
-            const tbody = document.getElementById('allLeadsTable');
-            tbody.innerHTML = window.leadsData.map(lead => `
-                <tr>
-                    <td>${lead.data}</td>
-                    <td><strong>${lead.nome}</strong></td>
-                    <td>${lead.email}</td>
-                    <td>${lead.telefone}</td>
-                    <td>${lead.empresa || '-'}</td>
-                    <td>${lead.faturamento || '-'}</td>
-                    <td>
-                        <select onchange="updateLeadStatus('${lead.id}', this.value)" style="padding: 0.5rem; border-radius: 6px;">
-                            <option value="novo" ${lead.status === 'novo' ? 'selected' : ''}>Novo</option>
-                            <option value="contatado" ${lead.status === 'contatado' ? 'selected' : ''}>Contatado</option>
-                            <option value="qualificado" ${lead.status === 'qualificado' ? 'selected' : ''}>Qualificado</option>
-                            <option value="convertido" ${lead.status === 'convertido' ? 'selected' : ''}>Convertido</option>
-                        </select>
-                    </td>
-                    <td>
-                        <button class="btn btn-primary btn-small" onclick="createProposalFromLead('${lead.nome}','${lead.empresa}','${lead.email}','${lead.telefone}')">
-                            📝 Proposta
-                        </button>
-                    </td>
-                </tr>
-            `).join('') || '<tr><td colspan="8" class="empty-state"><div class="empty-state-icon">👥</div><p>Nenhum lead</p></td></tr>';
-        }
-        
-        // Atualizar tabela de projetos
-        function updateProjectsTable() {
-            const tbody = document.getElementById('projectsTable');
-            
-            const statusBadges = {
-                'novo': 'badge-new',
-                'em-andamento': 'badge-contacted',
-                'concluido': 'badge-won',
-                'pausado': 'badge-lost'
-            };
-            
-            tbody.innerHTML = window.projectsData.map(project => `
-                <tr>
-                    <td><strong>${project.clientName}</strong></td>
-                    <td>${project.clientCompany || '-'}</td>
-                    <td>${project.service}</td>
-                    <td>
-                        <select onchange="updateProjectStatus('${project.id}', this.value)" style="padding: 0.5rem; border-radius: 6px;">
-                            <option value="novo" ${project.status === 'novo' ? 'selected' : ''}>Novo</option>
-                            <option value="em-andamento" ${project.status === 'em-andamento' ? 'selected' : ''}>Em Andamento</option>
-                            <option value="concluido" ${project.status === 'concluido' ? 'selected' : ''}>Concluído</option>
-                            <option value="pausado" ${project.status === 'pausado' ? 'selected' : ''}>Pausado</option>
-                        </select>
-                    </td>
-                    <td>
-                        <input type="range" min="0" max="100" value="${project.progress || 0}" 
-                               onchange="updateProjectProgress('${project.id}', this.value)"
-                               style="width: 100px;">
-                        <span>${project.progress || 0}%</span>
-                    </td>
-                    <td>R$ ${(project.value || 0).toLocaleString('pt-BR')}</td>
-                </tr>
-            `).join('') || '<tr><td colspan="6" class="empty-state"><div class="empty-state-icon">📊</div><p>Nenhum projeto</p></td></tr>';
-        }
-        
-        // Outras funções mantidas do portal anterior...
-        function createProposalFromLead(nome, empresa, email, telefone) {
-            showView('propostas');
-            document.getElementById('clientName').value = nome;
-            document.getElementById('clientCompany').value = empresa;
-            document.getElementById('clientEmail').value = email;
-            document.getElementById('clientPhone').value = telefone;
-        }
-        
+        // Mostrar alerta
         function showAlert(message, type) {
-            const container = document.getElementById('alertContainer') || document.querySelector('.content-card');
+            const container = document.getElementById('alertContainer');
+            if (!container) return;
+            
             const alert = document.createElement('div');
             alert.className = `alert alert-${type}`;
             alert.textContent = message;
-            container.prepend(alert);
-            setTimeout(() => alert.remove(), 5000);
+            
+            container.innerHTML = '';
+            container.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
         }
         
-        // Adicione as outras funções do portal anterior aqui...
+        // Mostrar erro crítico
+        function showError(message) {
+            const loadingScreen = document.getElementById('loadingScreen');
+            if (loadingScreen) {
+                loadingScreen.innerHTML = `
+                    <div style="color: white; text-align: center; max-width: 600px; padding: 2rem;">
+                        <h2 style="margin-bottom: 1rem;">❌ Erro ao Inicializar</h2>
+                        <p style="margin-bottom: 2rem; line-height: 1.6;">${message}</p>
+                        <button onclick="location.reload()" style="background: white; color: #1a4d2e; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                            🔄 Recarregar Página
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        
+        window.showAlert = showAlert;
+        
+        console.log('✅ Script carregado completamente!');
     </script>
 </body>
 </html>
