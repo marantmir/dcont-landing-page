@@ -28,6 +28,74 @@
             padding: 0;
             box-sizing: border-box;
         }
+
+        <!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+  import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+  // SUAS CREDENCIAIS (mesmas do portal)
+  const firebaseConfig = {
+      apiKey: "AIzaSyDtRTKhlogKi9DGp_7kRWDVkeLFzAWMHek",
+      authDomain: "dcont-portal.firebaseapp.com",
+      projectId: "dcont-portal",
+      storageBucket: "dcont-portal.firebasestorage.app",
+      messagingSenderId: "440147165990",
+      appId: "1:440147165990:web:32370de307654bb61db7e7",
+      measurementId: "G-9SEK71JHJ7"
+    };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Pegar formulário (AJUSTE O ID SE NECESSÁRIO)
+  const form = document.querySelector('form'); // ou document.getElementById('contact-form')
+
+  if (form) {
+      form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const submitBtn = form.querySelector('button[type="submit"]');
+          const originalText = submitBtn.textContent;
+          
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Enviando...';
+          
+          try {
+              const formData = new FormData(form);
+              
+              // AJUSTE OS NOMES DOS CAMPOS CONFORME SEU FORMULÁRIO
+              const leadData = {
+                  nome: formData.get('nome') || formData.get('name') || '',
+                  email: formData.get('email') || '',
+                  telefone: formData.get('telefone') || formData.get('phone') || '',
+                  empresa: formData.get('empresa') || formData.get('company') || '',
+                  faturamento: formData.get('faturamento') || '',
+                  interesse: formData.get('interesse') || formData.get('desafio') || '',
+                  mensagem: formData.get('mensagem') || formData.get('message') || '',
+                  origem: 'Landing Page',
+                  status: 'novo',
+                  createdAt: serverTimestamp(),
+                  updatedAt: serverTimestamp()
+              };
+              
+              // Salvar no Firestore
+              await addDoc(collection(db, 'leads'), leadData);
+              
+              // Sucesso!
+              alert('✅ Mensagem enviada com sucesso! Entraremos em contato em breve.');
+              form.reset();
+              
+          } catch (error) {
+              console.error('Erro:', error);
+              alert('❌ Erro ao enviar. Tente novamente.');
+          } finally {
+              submitBtn.disabled = false;
+              submitBtn.textContent = originalText;
+          }
+      });
+  }
+</script>
         
         body {
             font-family: var(--font-body);
