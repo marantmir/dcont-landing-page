@@ -3,18 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DCont - Login</title>
+    <title>DCont - Login Seguro</title>
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 
+    =============================================
+    🔒 SEGURANÇA: LEIA ANTES DE CONFIGURAR
+    =============================================
+    
+    As credenciais do Firebase abaixo são PÚBLICAS por design (frontend web).
+    
+    IMPORTANTE: Configure restrições na Google Cloud Console:
+    
+    1. Acesse: https://console.cloud.google.com/apis/credentials
+    2. Encontre sua API Key (mesma do Firebase)
+    3. Configure:
+       - HTTP referrers: https://seu-dominio.github.io/*
+       - Restrict key: Identity Toolkit API + Token Service API
+    
+    Com restrições configuradas, mesmo que alguém veja estas credenciais,
+    elas SÓ funcionarão no seu domínio autorizado.
+    
+    =============================================
+    -->
     
     <style>
         :root {
             --color-primary: #1a4d2e;
             --color-secondary: #4f772d;
             --color-accent: #d4a574;
-            --color-dark: #0d1f14;
         }
         
         * {
@@ -25,7 +43,7 @@
         
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, var(--color-dark) 0%, var(--color-primary) 100%);
+            background: linear-gradient(135deg, #0d1f14 0%, #1a4d2e 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -112,6 +130,7 @@
             border-radius: 10px;
             margin-bottom: 1.5rem;
             display: none;
+            font-weight: 500;
         }
         
         .alert.show {
@@ -130,30 +149,6 @@
             border: 1px solid #a7f3d0;
         }
         
-        .divider {
-            text-align: center;
-            margin: 2rem 0;
-            position: relative;
-        }
-        
-        .divider::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: #e0e0e0;
-        }
-        
-        .divider span {
-            background: white;
-            padding: 0 1rem;
-            position: relative;
-            color: #999;
-            font-size: 0.9rem;
-        }
-        
         .forgot-password {
             text-align: center;
             margin-top: 1rem;
@@ -163,10 +158,6 @@
             color: var(--color-primary);
             text-decoration: none;
             font-size: 0.9rem;
-        }
-        
-        .forgot-password a:hover {
-            text-decoration: underline;
         }
         
         .loading {
@@ -183,31 +174,13 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        
-        .register-link {
-            text-align: center;
-            margin-top: 2rem;
-            padding-top: 2rem;
-            border-top: 1px solid #e0e0e0;
-            color: #666;
-        }
-        
-        .register-link a {
-            color: var(--color-primary);
-            font-weight: 600;
-            text-decoration: none;
-        }
-        
-        .register-link a:hover {
-            text-decoration: underline;
-        }
     </style>
 </head>
 <body>
     <div class="login-container">
         <div class="logo">
-            <h1>DCont</h1>
-            <p>Portal Administrativo</p>
+            <h1>🔐 DCont</h1>
+            <p>Portal Administrativo Seguro</p>
         </div>
         
         <div id="alertBox" class="alert"></div>
@@ -243,36 +216,30 @@
         <div class="forgot-password">
             <a href="#" onclick="resetPassword(); return false;">Esqueci minha senha</a>
         </div>
-        
-        <div class="divider">
-            <span>ou</span>
-        </div>
-        
-        <div class="register-link">
-            <p>Primeiro acesso? <a href="#" onclick="showRegisterInfo(); return false;">Solicite seu acesso</a></p>
-        </div>
     </div>
     
     <!-- Firebase SDK -->
     <script type="module">
-        // ====================================
-        // CONFIGURAÇÃO DO FIREBASE
-        // ====================================
-        // IMPORTANTE: Substitua com suas credenciais do Firebase
-        // Instruções completas no arquivo INSTRUCOES-FIREBASE.md
-        
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         
-        // Sua configuração do Firebase (você vai preencher isso)
+        // =============================================
+        // 🔒 CONFIGURAÇÃO DO FIREBASE
+        // =============================================
+        // IMPORTANTE: Após colar suas credenciais aqui,
+        // configure restrições na Google Cloud Console!
+        // Veja GUIA-SEGURANCA-FIREBASE.md
+        // =============================================
+        
         const firebaseConfig = {
-            apiKey: "SUA_API_KEY_AQUI",
-            authDomain: "SEU_PROJETO.firebaseapp.com",
-            projectId: "SEU_PROJETO_ID",
-            storageBucket: "SEU_PROJETO.appspot.com",
-            messagingSenderId: "SEU_MESSAGING_ID",
-            appId: "SEU_APP_ID"
-        };
+			apiKey: "AIzaSyDtRTKhlogKi9DGp_7kRWDVkeLFzAWMHek",
+			authDomain: "dcont-portal.firebaseapp.com",
+			projectId: "dcont-portal",
+			storageBucket: "dcont-portal.firebasestorage.app",
+			messagingSenderId: "440147165990",
+			appId: "1:440147165990:web:32370de307654bb61db7e7",
+			measurementId: "G-9SEK71JHJ7"
+		};
         
         // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
@@ -283,7 +250,6 @@
         const loginBtn = document.getElementById('loginBtn');
         const alertBox = document.getElementById('alertBox');
         
-        // Função para mostrar alerta
         function showAlert(message, type) {
             alertBox.textContent = message;
             alertBox.className = `alert alert-${type} show`;
@@ -304,24 +270,18 @@
             
             try {
                 await signInWithEmailAndPassword(auth, email, password);
-                showAlert('Login realizado com sucesso! Redirecionando...', 'success');
+                showAlert('✅ Login realizado com sucesso!', 'success');
                 
-                // Redirecionar para o portal
                 setTimeout(() => {
-                    window.location.href = 'portal-administrativo-dcont.html';
-                }, 1500);
+                    window.location.href = 'portal-dcont-final.html';
+                }, 1000);
                 
             } catch (error) {
-                console.error('Erro no login:', error);
-                
-                let errorMessage = 'Erro ao fazer login. Tente novamente.';
+                let errorMessage = '❌ Erro ao fazer login.';
                 
                 switch (error.code) {
                     case 'auth/invalid-email':
                         errorMessage = 'E-mail inválido.';
-                        break;
-                    case 'auth/user-disabled':
-                        errorMessage = 'Usuário desabilitado.';
                         break;
                     case 'auth/user-not-found':
                         errorMessage = 'Usuário não encontrado.';
@@ -351,16 +311,10 @@
             
             try {
                 await sendPasswordResetEmail(auth, email);
-                showAlert('E-mail de recuperação enviado! Verifique sua caixa de entrada.', 'success');
+                showAlert('✅ E-mail de recuperação enviado!', 'success');
             } catch (error) {
-                console.error('Erro ao resetar senha:', error);
-                showAlert('Erro ao enviar e-mail de recuperação.', 'error');
+                showAlert('❌ Erro ao enviar e-mail.', 'error');
             }
-        };
-        
-        // Mostrar info de registro
-        window.showRegisterInfo = () => {
-            showAlert('Entre em contato com o administrador para solicitar acesso.', 'success');
         };
     </script>
 </body>
