@@ -3,16 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DCont - Portal</title>
+    <title>DCont - Sistema de Gestão Completo</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- EmailJS para envio de e-mails gratuito -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #f8f9fa; }
+        :root {
+            --primary: #1a4d2e;
+            --secondary: #4f772d;
+            --accent: #d4a574;
+            --dark: #0d1f14;
+            --bg: #f8f9fa;
+            --success: #48bb78;
+            --warning: #ed8936;
+            --danger: #f56565;
+            --info: #4299e1;
+        }
         
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg);
+            color: #333;
+        }
+        
+        /* Loading */
         #loadingScreen {
             position: fixed;
             inset: 0;
-            background: linear-gradient(135deg, #0d1f14, #1a4d2e);
+            background: linear-gradient(135deg, var(--dark), var(--primary));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -20,389 +42,765 @@
             color: white;
             z-index: 9999;
         }
-        .spinner { 
-            width: 60px; 
-            height: 60px; 
-            border: 4px solid rgba(255,255,255,0.3); 
-            border-top-color: white; 
-            border-radius: 50%; 
-            animation: spin 1s linear infinite; 
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
             margin-bottom: 1rem;
         }
+        
         @keyframes spin { to { transform: rotate(360deg); } }
         
-        .app-container { display: none; min-height: 100vh; }
-        .app-container.loaded { display: block; }
-        
-        .header {
-            background: white;
-            padding: 1.5rem 2rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* Layout */
+        .app-container {
+            display: none;
+            grid-template-columns: 240px 1fr;
+            min-height: 100vh;
         }
-        .header h1 { color: #1a4d2e; font-size: 1.5rem; }
-        .user-info { display: flex; align-items: center; gap: 1rem; }
-        .btn-logout {
-            background: #f56565;
+        
+        .app-container.loaded { display: grid; }
+        
+        /* Sidebar */
+        .sidebar {
+            background: var(--dark);
             color: white;
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 8px;
+            position: fixed;
+            height: 100vh;
+            width: 240px;
+            overflow-y: auto;
+        }
+        
+        .logo {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+        
+        .user-info {
+            padding: 1rem 1.5rem;
+            background: rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.85rem;
+        }
+        
+        .btn-logout {
+            width: 100%;
+            padding: 0.5rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            border-radius: 6px;
             cursor: pointer;
-            font-weight: 600;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
         }
         
-        .content { max-width: 1400px; margin: 2rem auto; padding: 0 2rem; }
-        .card {
+        .nav {
+            list-style: none;
+            padding: 0.5rem 0;
+        }
+        
+        .nav-item {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-left: 3px solid transparent;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .nav-item.active {
+            background: rgba(79,119,45,0.2);
+            border-left-color: var(--accent);
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 240px;
+            padding: 1.5rem;
+        }
+        
+        .page-header {
             background: white;
+            padding: 1.5rem;
             border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
         
+        .page-header h2 {
+            font-size: 1.75rem;
+            color: var(--dark);
+        }
+        
+        /* Stats */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
         }
+        
         .stat-card {
             background: white;
             padding: 1.5rem;
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            border-left: 4px solid #1a4d2e;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary);
         }
-        .stat-value { font-size: 2.5rem; font-weight: 700; color: #1a4d2e; }
-        .stat-label { color: #666; margin-top: 0.5rem; }
         
-        .btn-primary {
-            background: linear-gradient(135deg, #1a4d2e, #4f772d);
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border: none;
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+        
+        /* Card */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 0.625rem 1.25rem;
             border-radius: 8px;
+            border: none;
             font-weight: 600;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: inherit;
         }
-        .btn-primary:hover { opacity: 0.9; }
         
-        table { width: 100%; border-collapse: collapse; }
-        th { padding: 1rem; text-align: left; background: #f8f9fa; font-weight: 600; }
-        td { padding: 1rem; border-top: 1px solid #e0e0e0; }
-        tr:hover { background: #f8f9fa; }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
         
-        .alert {
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+        
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            padding: 0.875rem;
+            text-align: left;
+            background: #f8f9fa;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        
+        td {
+            padding: 0.875rem;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge-novo { background: #e6fffa; color: #047857; }
+        .badge-contato { background: #fef3c7; color: #92400e; }
+        .badge-cliente { background: #d1fae5; color: #065f46; }
+        
+        /* Pipeline Kanban */
+        .pipeline-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .pipeline-column {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            min-height: 300px;
+        }
+        
+        .column-header {
+            font-weight: 700;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .pipeline-card {
+            background: white;
             padding: 1rem;
             border-radius: 8px;
-            margin-bottom: 1rem;
-            font-weight: 500;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: pointer;
         }
-        .alert-success { background: #d1fae5; color: #065f46; }
-        .alert-error { background: #fee2e2; color: #991b1b; }
         
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: #999;
+        .pipeline-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        /* Form */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        /* Views */
+        .view {
+            display: none;
+        }
+        
+        .view.active {
+            display: block;
+        }
+        
+        /* Responsive */
+        @media (max-width: 968px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .pipeline-board {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Loading -->
     <div id="loadingScreen">
         <div class="spinner"></div>
-        <div>Verificando autenticação...</div>
+        <div>Carregando...</div>
     </div>
     
-    <!-- App -->
     <div class="app-container" id="appContainer">
-        <header class="header">
-            <h1>🏢 DCont - Portal Administrativo</h1>
-            <div class="user-info">
-                <span id="userEmail">Carregando...</span>
-                <button class="btn-logout" onclick="logout()">Sair</button>
+        <aside class="sidebar">
+            <div class="logo">
+                <h1>DCont</h1>
+                <p style="opacity: 0.7; font-size: 0.8rem;">Gestão Completa</p>
             </div>
-        </header>
-        
-        <div class="content">
-            <div id="alertContainer"></div>
             
-            <!-- Stats -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="totalLeads">0</div>
-                    <div class="stat-label">Total de Leads</div>
+            <div class="user-info">
+                <div id="userEmail" style="margin-bottom: 0.5rem;">usuario@dcont.com</div>
+                <button class="btn-logout" onclick="logout()">🚪 Sair</button>
+            </div>
+            
+            <ul class="nav">
+                <li class="nav-item active" onclick="showView('dashboard')">📊 Dashboard</li>
+                <li class="nav-item" onclick="showView('pipeline')">🎯 Pipeline</li>
+                <li class="nav-item" onclick="showView('leads')">👥 Leads</li>
+                <li class="nav-item" onclick="showView('clientes')">💼 Clientes</li>
+                <li class="nav-item" onclick="showView('propostas')">📝 Propostas</li>
+                <li class="nav-item" onclick="showView('projetos')">🚀 Projetos</li>
+                <li class="nav-item" onclick="showView('financeiro')">💰 Financeiro</li>
+                <li class="nav-item" onclick="showView('tarefas')">✅ Tarefas</li>
+                <li class="nav-item" onclick="showView('ferramentas')">🔧 Ferramentas</li>
+            </ul>
+        </aside>
+        
+        <main class="main-content">
+            <!-- Dashboard -->
+            <div class="view active" id="dashboard">
+                <div class="page-header">
+                    <h2>📊 Dashboard</h2>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="leadsHoje">0</div>
-                    <div class="stat-label">Leads Hoje</div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalLeads">0</div>
+                        <div class="stat-label">Total Leads</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="clientesAtivos">0</div>
+                        <div class="stat-label">Clientes Ativos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="projetosAtivos">0</div>
+                        <div class="stat-label">Projetos Ativos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="receitaMensal">R$ 0</div>
+                        <div class="stat-label">Receita Mensal</div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="leadsEmana">0</div>
-                    <div class="stat-label">Esta Semana</div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Atividades Recentes</h3>
+                        <button class="btn btn-secondary btn-small" onclick="loadData()">🔄 Atualizar</button>
+                    </div>
+                    <div id="atividadesRecentes">Carregando...</div>
+                </div>
+            </div>
+            
+            <!-- Pipeline -->
+            <div class="view" id="pipeline">
+                <div class="page-header">
+                    <h2>🎯 Pipeline de Vendas</h2>
+                </div>
+                
+                <div class="pipeline-board">
+                    <div class="pipeline-column">
+                        <div class="column-header">Lead Novo</div>
+                        <div id="pipelineNovo"></div>
+                    </div>
+                    <div class="pipeline-column">
+                        <div class="column-header">Contato Feito</div>
+                        <div id="pipelineContato"></div>
+                    </div>
+                    <div class="pipeline-column">
+                        <div class="column-header">Proposta Enviada</div>
+                        <div id="pipelineProposta"></div>
+                    </div>
+                    <div class="pipeline-column">
+                        <div class="column-header">Cliente</div>
+                        <div id="pipelineCliente"></div>
+                    </div>
                 </div>
             </div>
             
             <!-- Leads -->
-            <div class="card">
-                <h2 style="margin-bottom: 1.5rem;">📊 Leads Recentes</h2>
-                <button class="btn-primary" onclick="loadLeads()" style="margin-bottom: 1rem;">🔄 Atualizar</button>
+            <div class="view" id="leads">
+                <div class="page-header">
+                    <h2>👥 Gestão de Leads</h2>
+                </div>
                 
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Data</th>
-                            <th>Nome</th>
-                            <th>E-mail</th>
-                            <th>Empresa</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="leadsTable">
-                        <tr>
-                            <td colspan="5" class="empty-state">Clique em "Atualizar" para carregar</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>Empresa</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leadsTable">
+                            <tr><td colspan="6">Carregando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
+            
+            <!-- Clientes -->
+            <div class="view" id="clientes">
+                <div class="page-header">
+                    <h2>💼 Clientes Ativos</h2>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Lista de Clientes</h3>
+                        <button class="btn btn-primary btn-small" onclick="adicionarCliente()">+ Novo Cliente</button>
+                    </div>
+                    <div id="clientesLista">Carregando...</div>
+                </div>
+            </div>
+            
+            <!-- Propostas -->
+            <div class="view" id="propostas">
+                <div class="page-header">
+                    <h2>📝 Gerador de Propostas</h2>
+                </div>
+                
+                <div class="card">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Cliente</label>
+                            <input type="text" id="propCliente" placeholder="Nome do cliente">
+                        </div>
+                        <div class="form-group">
+                            <label>Serviço</label>
+                            <select id="propServico">
+                                <option>Diagnóstico 360°</option>
+                                <option>Planejamento Tributário</option>
+                                <option>Controladoria</option>
+                                <option>Gestão 360°</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Valor (R$)</label>
+                            <input type="number" id="propValor" placeholder="5000">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="gerarProposta()">Gerar Proposta</button>
+                </div>
+            </div>
+            
+            <!-- Projetos -->
+            <div class="view" id="projetos">
+                <div class="page-header">
+                    <h2>🚀 Gestão de Projetos</h2>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Projetos Ativos</h3>
+                        <button class="btn btn-primary btn-small" onclick="novoProjeto()">+ Novo Projeto</button>
+                    </div>
+                    <div id="projetosLista">Carregando...</div>
+                </div>
+            </div>
+            
+            <!-- Financeiro -->
+            <div class="view" id="financeiro">
+                <div class="page-header">
+                    <h2>💰 Gestão Financeira</h2>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">R$ 0</div>
+                        <div class="stat-label">Receitas do Mês</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">R$ 0</div>
+                        <div class="stat-label">Despesas do Mês</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">R$ 0</div>
+                        <div class="stat-label">Lucro do Mês</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>Fluxo de Caixa</h3>
+                    <p style="color: #666; margin-top: 1rem;">Integração com ferramentas gratuitas de gestão financeira.</p>
+                </div>
+            </div>
+            
+            <!-- Tarefas -->
+            <div class="view" id="tarefas">
+                <div class="page-header">
+                    <h2>✅ Gestão de Tarefas</h2>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Minhas Tarefas</h3>
+                        <button class="btn btn-primary btn-small" onclick="novaTarefa()">+ Nova Tarefa</button>
+                    </div>
+                    <div id="tarefasLista">Carregando...</div>
+                </div>
+            </div>
+            
+            <!-- Ferramentas -->
+            <div class="view" id="ferramentas">
+                <div class="page-header">
+                    <h2>🔧 Ferramentas Gratuitas Integradas</h2>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+                    <div class="card">
+                        <h3>📧 EmailJS</h3>
+                        <p style="margin: 1rem 0; color: #666;">Envio automático de e-mails (200/mês grátis)</p>
+                        <button class="btn btn-secondary btn-small" onclick="window.open('https://www.emailjs.com', '_blank')">Configurar</button>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>📊 Google Sheets</h3>
+                        <p style="margin: 1rem 0; color: #666;">Planilhas integradas para relatórios</p>
+                        <button class="btn btn-secondary btn-small" onclick="window.open('https://sheets.google.com', '_blank')">Abrir</button>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>📅 Google Calendar</h3>
+                        <p style="margin: 1rem 0; color: #666;">Agendamento de reuniões</p>
+                        <button class="btn btn-secondary btn-small" onclick="window.open('https://calendar.google.com', '_blank')">Abrir</button>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>💬 WhatsApp Business</h3>
+                        <p style="margin: 1rem 0; color: #666;">Comunicação com clientes</p>
+                        <button class="btn btn-secondary btn-small" onclick="abrirWhatsApp()">Abrir</button>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>📁 Google Drive</h3>
+                        <p style="margin: 1rem 0; color: #666;">Armazenamento de documentos (15GB grátis)</p>
+                        <button class="btn btn-secondary btn-small" onclick="window.open('https://drive.google.com', '_blank')">Abrir</button>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>🎨 Canva</h3>
+                        <p style="margin: 1rem 0; color: #666;">Criação de materiais visuais</p>
+                        <button class="btn btn-secondary btn-small" onclick="window.open('https://www.canva.com', '_blank')">Abrir</button>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
     
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getFirestore, collection, getDocs, query, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, query, orderBy, where, Timestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
         
-        // ============================================
-        // COLE SUAS CREDENCIAIS AQUI
-        // ============================================
         const firebaseConfig = {
-          apiKey: "AIzaSyDtRTKhlogKi9DGp_7kRWDVkeLFzAWMHek",
-          authDomain: "dcont-portal.firebaseapp.com",
-          projectId: "dcont-portal",
-          storageBucket: "dcont-portal.firebasestorage.app",
-          messagingSenderId: "440147165990",
-          appId: "1:440147165990:web:32370de307654bb61db7e7",
-          measurementId: "G-9SEK71JHJ7"
+            apiKey: "AIzaSyDtRTKhlogKi9DGp_7kRWDVkeLFzAWMHek",
+            authDomain: "dcont-portal.firebaseapp.com",
+            projectId: "dcont-portal",
+            storageBucket: "dcont-portal.firebasestorage.app",
+            messagingSenderId: "440147165990",
+            appId: "1:440147165990:web:32370de307654bb61db7e7"
         };
         
-        console.log('🔥 Inicializando Firebase...');
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
         
-        let db, auth, currentUser;
+        let currentUser = null;
         
-        try {
-            // Inicializar Firebase
-            const app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            db = getFirestore(app);
+        onAuthStateChanged(auth, (user) => {
+            const loadingScreen = document.getElementById('loadingScreen');
+            const appContainer = document.getElementById('appContainer');
             
-            console.log('✅ Firebase inicializado com sucesso!');
-            
-            // Aguardar DOM estar pronto
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', initAuth);
+            if (user) {
+                currentUser = user;
+                document.getElementById('userEmail').textContent = user.email;
+                loadingScreen.style.display = 'none';
+                appContainer.classList.add('loaded');
+                window.loadData();
             } else {
-                initAuth();
+                window.location.href = 'login-dcont.html';
             }
-            
-        } catch (error) {
-            console.error('❌ ERRO CRÍTICO ao inicializar Firebase:', error);
-            showError('Erro ao inicializar Firebase: ' + error.message);
-        }
+        });
         
-        // Inicializar autenticação
-        function initAuth() {
-            console.log('📡 Configurando autenticação...');
-            
-            onAuthStateChanged(auth, (user) => {
-                console.log('🔐 Estado de autenticação mudou:', user ? 'LOGADO' : 'NÃO LOGADO');
-                
-                const loadingScreen = document.getElementById('loadingScreen');
-                const appContainer = document.getElementById('appContainer');
-                const userEmailEl = document.getElementById('userEmail');
-                
-                if (user) {
-                    console.log('✅ Usuário autenticado:', user.email);
-                    currentUser = user;
-                    
-                    // Atualizar interface
-                    if (userEmailEl) {
-                        userEmailEl.textContent = user.email;
-                    }
-                    
-                    // Esconder loading
-                    if (loadingScreen) {
-                        loadingScreen.style.display = 'none';
-                    }
-                    
-                    // Mostrar app
-                    if (appContainer) {
-                        appContainer.classList.add('loaded');
-                    }
-                    
-                    // Carregar dados
-                    setTimeout(() => {
-                        window.loadLeads();
-                    }, 500);
-                    
-                } else {
-                    console.log('❌ Usuário NÃO autenticado - Redirecionando...');
-                    
-                    // Verificar se já está na página de login
-                    if (!window.location.href.includes('login')) {
-                        window.location.href = 'login-dcont.html';
-                    }
-                }
-            });
-        }
-        
-        // Logout
         window.logout = async () => {
-            if (confirm('Deseja sair do sistema?')) {
-                try {
-                    console.log('👋 Fazendo logout...');
-                    await signOut(auth);
-                    window.location.href = 'login-dcont.html';
-                } catch (error) {
-                    console.error('❌ Erro ao fazer logout:', error);
-                    alert('Erro ao sair: ' + error.message);
-                }
+            if (confirm('Deseja sair?')) {
+                await signOut(auth);
+                window.location.href = 'login-dcont.html';
             }
         };
         
-        // Carregar leads
-        window.loadLeads = async () => {
-            console.log('📥 Iniciando carregamento de leads...');
-            showAlert('🔄 Carregando leads do Firebase...', 'success');
-            
+        window.loadData = async () => {
             try {
-                if (!db) {
-                    throw new Error('Firestore não inicializado');
-                }
-                
-                console.log('🔍 Buscando coleção "leads"...');
                 const leadsRef = collection(db, 'leads');
-                const q = query(leadsRef, orderBy('createdAt', 'desc'), limit(50));
-                
-                console.log('⏳ Executando query...');
+                const q = query(leadsRef, orderBy('createdAt', 'desc'));
                 const snapshot = await getDocs(q);
-                
-                console.log(`✅ Query executada! Leads encontrados: ${snapshot.size}`);
                 
                 const leads = [];
                 snapshot.forEach(doc => {
-                    const data = doc.data();
-                    leads.push({
-                        id: doc.id,
-                        ...data,
-                        data: data.createdAt?.toDate?.().toLocaleDateString('pt-BR') || 'N/A'
-                    });
-                    console.log('📄 Lead:', data.nome || 'sem nome');
+                    leads.push({ id: doc.id, ...doc.data() });
                 });
                 
-                // Atualizar stats
-                const hoje = new Date().toLocaleDateString('pt-BR');
-                const totalLeads = leads.length;
-                const leadsHoje = leads.filter(l => l.data === hoje).length;
+                document.getElementById('totalLeads').textContent = leads.length;
                 
-                console.log('📊 Atualizando estatísticas...');
-                document.getElementById('totalLeads').textContent = totalLeads;
-                document.getElementById('leadsHoje').textContent = leadsHoje;
-                document.getElementById('leadsEmana').textContent = totalLeads;
-                
-                // Atualizar tabela
-                console.log('📋 Atualizando tabela...');
-                const tbody = document.getElementById('leadsTable');
-                
+                // Atualizar tabela de leads
+                const leadsTable = document.getElementById('leadsTable');
                 if (leads.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="empty-state">✨ Nenhum lead ainda. Aguardando formulário da landing page!</td></tr>';
-                    showAlert('ℹ️ Nenhum lead encontrado ainda', 'success');
+                    leadsTable.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nenhum lead ainda</td></tr>';
                 } else {
-                    tbody.innerHTML = leads.map(lead => `
+                    leadsTable.innerHTML = leads.map(lead => `
                         <tr>
-                            <td>${lead.data}</td>
+                            <td>${lead.createdAt?.toDate?.().toLocaleDateString('pt-BR') || 'N/A'}</td>
                             <td><strong>${lead.nome || 'N/A'}</strong></td>
                             <td>${lead.email || 'N/A'}</td>
                             <td>${lead.empresa || '-'}</td>
-                            <td><span style="background: #d1fae5; color: #065f46; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">${lead.status || 'novo'}</span></td>
+                            <td><span class="badge badge-novo">${lead.status || 'novo'}</span></td>
+                            <td>
+                                <button class="btn btn-primary btn-small" onclick="converterLead('${lead.id}')">
+                                    Converter
+                                </button>
+                            </td>
                         </tr>
                     `).join('');
-                    
-                    showAlert(`✅ ${leads.length} lead${leads.length > 1 ? 's' : ''} carregado${leads.length > 1 ? 's' : ''} com sucesso!`, 'success');
                 }
+                
+                // Atualizar pipeline
+                atualizarPipeline(leads);
                 
             } catch (error) {
-                console.error('❌ ERRO ao carregar leads:', error);
-                console.error('Detalhes do erro:', error.code, error.message);
-                
-                let errorMessage = 'Erro ao carregar leads: ';
-                
-                if (error.code === 'permission-denied') {
-                    errorMessage += 'Permissão negada. Verifique as regras do Firestore.';
-                } else if (error.message.includes('not initialized')) {
-                    errorMessage += 'Firestore não inicializado. Recarregue a página.';
-                } else {
-                    errorMessage += error.message;
-                }
-                
-                showAlert('❌ ' + errorMessage, 'error');
-                
-                document.getElementById('leadsTable').innerHTML = `
-                    <tr>
-                        <td colspan="5" class="empty-state">
-                            <div style="color: #991b1b;">
-                                <strong>Erro ao carregar leads</strong><br>
-                                ${errorMessage}<br><br>
-                                <button class="btn-primary" onclick="loadLeads()">🔄 Tentar Novamente</button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                console.error('Erro ao carregar dados:', error);
             }
         };
         
-        // Mostrar alerta
-        function showAlert(message, type) {
-            const container = document.getElementById('alertContainer');
-            if (!container) return;
+        function atualizarPipeline(leads) {
+            const novos = leads.filter(l => l.status === 'novo' || !l.status);
+            const contato = leads.filter(l => l.status === 'contato');
+            const proposta = leads.filter(l => l.status === 'proposta');
+            const cliente = leads.filter(l => l.status === 'cliente');
             
-            const alert = document.createElement('div');
-            alert.className = `alert alert-${type}`;
-            alert.textContent = message;
+            document.getElementById('pipelineNovo').innerHTML = novos.map(l => `
+                <div class="pipeline-card">
+                    <div style="font-weight: 600;">${l.nome}</div>
+                    <div style="font-size: 0.85rem; color: #666;">${l.empresa || '-'}</div>
+                </div>
+            `).join('') || '<div style="color: #999; text-align: center; padding: 2rem;">Vazio</div>';
             
-            container.innerHTML = '';
-            container.appendChild(alert);
+            document.getElementById('pipelineContato').innerHTML = contato.map(l => `
+                <div class="pipeline-card">
+                    <div style="font-weight: 600;">${l.nome}</div>
+                    <div style="font-size: 0.85rem; color: #666;">${l.empresa || '-'}</div>
+                </div>
+            `).join('') || '<div style="color: #999; text-align: center; padding: 2rem;">Vazio</div>';
             
-            setTimeout(() => {
-                alert.remove();
-            }, 5000);
+            document.getElementById('pipelineProposta').innerHTML = proposta.map(l => `
+                <div class="pipeline-card">
+                    <div style="font-weight: 600;">${l.nome}</div>
+                    <div style="font-size: 0.85rem; color: #666;">${l.empresa || '-'}</div>
+                </div>
+            `).join('') || '<div style="color: #999; text-align: center; padding: 2rem;">Vazio</div>';
+            
+            document.getElementById('pipelineCliente').innerHTML = cliente.map(l => `
+                <div class="pipeline-card">
+                    <div style="font-weight: 600;">${l.nome}</div>
+                    <div style="font-size: 0.85rem; color: #666;">${l.empresa || '-'}</div>
+                </div>
+            `).join('') || '<div style="color: #999; text-align: center; padding: 2rem;">Vazio</div>';
         }
         
-        // Mostrar erro crítico
-        function showError(message) {
-            const loadingScreen = document.getElementById('loadingScreen');
-            if (loadingScreen) {
-                loadingScreen.innerHTML = `
-                    <div style="color: white; text-align: center; max-width: 600px; padding: 2rem;">
-                        <h2 style="margin-bottom: 1rem;">❌ Erro ao Inicializar</h2>
-                        <p style="margin-bottom: 2rem; line-height: 1.6;">${message}</p>
-                        <button onclick="location.reload()" style="background: white; color: #1a4d2e; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                            🔄 Recarregar Página
-                        </button>
-                    </div>
-                `;
+        window.converterLead = async (leadId) => {
+            if (confirm('Converter este lead em cliente?')) {
+                try {
+                    const leadRef = doc(db, 'leads', leadId);
+                    await updateDoc(leadRef, {
+                        status: 'cliente',
+                        updatedAt: Timestamp.now()
+                    });
+                    alert('Lead convertido em cliente!');
+                    window.loadData();
+                } catch (error) {
+                    alert('Erro ao converter: ' + error.message);
+                }
+            }
+        };
+        
+        window.db = db;
+    </script>
+    
+    <script>
+        function showView(viewName) {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+            document.getElementById(viewName).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        function gerarProposta() {
+            const cliente = document.getElementById('propCliente').value;
+            const servico = document.getElementById('propServico').value;
+            const valor = document.getElementById('propValor').value;
+            
+            if (!cliente || !valor) {
+                alert('Preencha os campos obrigatórios');
+                return;
+            }
+            
+            alert('Proposta gerada! (Função a implementar)');
+        }
+        
+        function novoProjeto() {
+            alert('Adicionar novo projeto (Função a implementar)');
+        }
+        
+        function novaTarefa() {
+            alert('Adicionar nova tarefa (Função a implementar)');
+        }
+        
+        function adicionarCliente() {
+            alert('Adicionar cliente (Função a implementar)');
+        }
+        
+        function abrirWhatsApp() {
+            const numero = prompt('Digite o número do WhatsApp (com DDD):');
+            if (numero) {
+                window.open(`https://wa.me/55${numero.replace(/\D/g, '')}`, '_blank');
             }
         }
-        
-        window.showAlert = showAlert;
-        
-        console.log('✅ Script carregado completamente!');
     </script>
 </body>
 </html>
