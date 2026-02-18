@@ -3,194 +3,357 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DCont - Sistema Avançado de Gestão</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="manifest" href="/manifest.json">
+    <title>DCont - Sistema de Gestão Empresarial</title>
     
-    <!-- Chart.js para gráficos -->
+    <!-- Fonts profissionais -->
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
-    
-    <!-- EmailJS -->
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     
     <style>
         :root {
+            /* Cores principais */
             --primary: #1a4d2e;
+            --primary-dark: #0d2617;
+            --primary-light: #2d7a4a;
             --secondary: #4f772d;
             --accent: #d4a574;
-            --dark: #0d1f14;
-            --bg: #f8f9fa;
+            --accent-bright: #f4c186;
+            
+            /* Tons neutros */
+            --bg-primary: #fafbf7;
+            --bg-secondary: #f0f2ed;
+            --surface: #ffffff;
+            --border: #e1e6dd;
+            
+            /* Status colors */
             --success: #48bb78;
             --warning: #ed8936;
             --danger: #f56565;
             --info: #4299e1;
+            
+            /* Text */
+            --text-primary: #1a2817;
+            --text-secondary: #4a5d47;
+            --text-tertiary: #7a8f77;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(26, 77, 46, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(26, 77, 46, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(26, 77, 46, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(26, 77, 46, 0.15);
+            
+            /* Fonts */
+            --font-display: 'Sora', sans-serif;
+            --font-mono: 'Space Mono', monospace;
         }
         
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg);
-            color: #333;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
         
-        /* Loading */
+        body {
+            font-family: var(--font-display);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        /* Loading Screen */
         #loadingScreen {
             position: fixed;
             inset: 0;
-            background: linear-gradient(135deg, var(--dark), var(--primary));
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            flex-direction: column;
-            color: white;
-            z-index: 9999;
+            z-index: 10000;
         }
         
-        .spinner {
+        .loader {
             width: 60px;
             height: 60px;
-            border: 4px solid rgba(255,255,255,0.3);
-            border-top-color: white;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top-color: var(--accent);
             border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 1rem;
+            animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
         }
         
-        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
         
-        /* Layout */
+        .loading-text {
+            margin-top: 1.5rem;
+            color: var(--accent);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        /* App Container */
         .app-container {
             display: none;
-            grid-template-columns: 240px 1fr;
             min-height: 100vh;
         }
         
-        .app-container.loaded { display: grid; }
+        .app-container.loaded {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+        }
         
         /* Sidebar */
         .sidebar {
-            background: var(--dark);
-            color: white;
-            position: fixed;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
             height: 100vh;
-            width: 240px;
+            position: fixed;
+            width: 280px;
             overflow-y: auto;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .logo-section {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
         }
         
         .logo {
-            padding: 1.5rem;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--accent-bright);
+            letter-spacing: -0.5px;
+            margin-bottom: 0.25rem;
         }
         
-        .logo h1 {
-            font-size: 1.5rem;
-            color: var(--accent);
+        .logo-subtitle {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.8);
+            font-weight: 400;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
         
-        .user-info {
-            padding: 1rem 1.5rem;
-            background: rgba(255,255,255,0.05);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            font-size: 0.85rem;
+        .user-section {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-secondary);
+        }
+        
+        .user-email {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            word-break: break-all;
+            font-family: var(--font-mono);
         }
         
         .btn-logout {
             width: 100%;
-            padding: 0.5rem;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
-            border-radius: 6px;
+            padding: 0.625rem 1rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 0.85rem;
-            margin-top: 0.5rem;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: var(--font-display);
         }
         
+        .btn-logout:hover {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        /* Navigation */
         .nav {
+            padding: 1rem 0;
             list-style: none;
-            padding: 0.5rem 0;
         }
         
         .nav-item {
-            padding: 0.75rem 1.5rem;
+            position: relative;
+            margin: 0.25rem 0.75rem;
+            padding: 0.875rem 1rem;
+            border-radius: 10px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            border-left: 3px solid transparent;
-            font-size: 0.9rem;
-            transition: all 0.2s;
+            gap: 0.875rem;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .nav-item:hover {
-            background: rgba(255,255,255,0.05);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            transform: translateX(2px);
         }
         
         .nav-item.active {
-            background: rgba(79,119,45,0.2);
-            border-left-color: var(--accent);
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .nav-item.active .nav-icon {
+            color: var(--accent-bright);
+        }
+        
+        .nav-icon {
+            font-size: 1.25rem;
+            width: 24px;
+            text-align: center;
         }
         
         /* Main Content */
         .main-content {
-            margin-left: 240px;
-            padding: 1.5rem;
+            margin-left: 280px;
+            padding: 2rem;
+            min-height: 100vh;
         }
         
+        /* Page Header */
         .page-header {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         
-        .page-header h2 {
-            font-size: 1.75rem;
-            color: var(--dark);
-        }
-        
-        /* Stats */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.25rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            border-left: 4px solid var(--primary);
-            transition: all 0.2s;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        
-        .stat-value {
+        .page-title {
             font-size: 2rem;
-            font-weight: 700;
+            font-weight: 800;
             color: var(--primary);
+            letter-spacing: -0.5px;
         }
         
-        .stat-label {
-            color: #666;
-            font-size: 0.9rem;
+        .page-subtitle {
+            font-size: 0.9375rem;
+            color: var(--text-tertiary);
             margin-top: 0.25rem;
         }
         
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            font-size: 0.9375rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: var(--font-display);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--bg-secondary);
+            border-color: var(--primary);
+        }
+        
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--surface);
+            padding: 1.75rem;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--primary), var(--primary-light));
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -1px;
+            margin-bottom: 0.5rem;
+        }
+        
         .stat-change {
-            font-size: 0.8rem;
-            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
         }
         
         .stat-change.positive {
@@ -203,297 +366,198 @@
         
         /* Card */
         .card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            margin-bottom: 1.5rem;
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            margin-bottom: 2rem;
         }
         
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.25rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 2px solid var(--border);
         }
         
-        .card-header h3 {
-            font-size: 1.25rem;
-            color: var(--dark);
+        .card-title {
+            font-size: 1.375rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: -0.25px;
         }
         
-        /* Buttons */
-        .btn {
-            padding: 0.625rem 1.25rem;
-            border-radius: 8px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.9rem;
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background: var(--bg-secondary);
+        }
+        
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+        
+        td {
+            padding: 1rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.9375rem;
+        }
+        
+        tbody tr {
+            transition: all 0.2s;
+        }
+        
+        tbody tr:hover {
+            background: var(--bg-secondary);
+        }
+        
+        /* Badge */
+        .badge {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            font-family: inherit;
-            transition: all 0.2s;
+            padding: 0.375rem 0.875rem;
+            border-radius: 20px;
+            font-size: 0.8125rem;
+            font-weight: 700;
+            letter-spacing: 0.25px;
         }
         
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
+        .badge-novo {
+            background: #e6fffa;
+            color: #047857;
         }
         
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(26,77,46,0.3);
+        .badge-contato {
+            background: #fef3c7;
+            color: #92400e;
         }
         
-        .btn-secondary {
-            background: #f0f0f0;
-            color: #333;
+        .badge-qualificado {
+            background: #dbeafe;
+            color: #1e40af;
         }
         
-        .btn-small {
-            padding: 0.5rem 1rem;
-            font-size: 0.85rem;
+        .badge-convertido {
+            background: #d1fae5;
+            color: #065f46;
         }
         
-        /* Charts */
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-tertiary);
+        }
+        
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+        
+        .empty-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .empty-description {
+            font-size: 0.9375rem;
+            color: var(--text-tertiary);
+        }
+        
+        /* Chart Container */
         .chart-container {
             position: relative;
-            height: 300px;
-            margin-top: 1rem;
-        }
-        
-        /* Chat */
-        .chat-container {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            gap: 1rem;
-            height: 600px;
-        }
-        
-        .chat-users {
-            background: white;
-            border-radius: 12px;
-            padding: 1rem;
-            overflow-y: auto;
-        }
-        
-        .chat-user {
-            padding: 0.75rem;
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            transition: all 0.2s;
-        }
-        
-        .chat-user:hover {
-            background: var(--bg);
-        }
-        
-        .chat-user.active {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .chat-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-        }
-        
-        .chat-main {
-            background: white;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .chat-header {
-            padding: 1rem;
-            border-bottom: 2px solid #e0e0e0;
-            font-weight: 600;
-        }
-        
-        .chat-messages {
-            flex: 1;
-            padding: 1rem;
-            overflow-y: auto;
-        }
-        
-        .chat-message {
-            margin-bottom: 1rem;
-            display: flex;
-            gap: 0.75rem;
-        }
-        
-        .chat-message.own {
-            flex-direction: row-reverse;
-        }
-        
-        .chat-message-bubble {
-            background: var(--bg);
-            padding: 0.75rem 1rem;
-            border-radius: 12px;
-            max-width: 70%;
-        }
-        
-        .chat-message.own .chat-message-bubble {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .chat-input {
-            padding: 1rem;
-            border-top: 2px solid #e0e0e0;
-            display: flex;
-            gap: 0.75rem;
-        }
-        
-        .chat-input input {
-            flex: 1;
-            padding: 0.75rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 0.95rem;
-        }
-        
-        /* Notifications */
-        .notification-badge {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: var(--danger);
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            font-weight: 700;
-        }
-        
-        .notification-panel {
-            position: fixed;
-            top: 0;
-            right: -400px;
-            width: 400px;
-            height: 100vh;
-            background: white;
-            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
-            transition: right 0.3s ease;
-            z-index: 1000;
-            overflow-y: auto;
-        }
-        
-        .notification-panel.open {
-            right: 0;
-        }
-        
-        .notification-header {
-            padding: 1.5rem;
-            border-bottom: 2px solid #e0e0e0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .notification-item {
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid #e0e0e0;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .notification-item:hover {
-            background: var(--bg);
-        }
-        
-        .notification-item.unread {
-            background: rgba(26,77,46,0.05);
-            border-left: 4px solid var(--primary);
-        }
-        
-        /* API Documentation */
-        .api-endpoint {
-            background: #f8f9fa;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            border-left: 4px solid var(--primary);
-        }
-        
-        .api-method {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 4px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            margin-right: 0.5rem;
-        }
-        
-        .api-method.get { background: #48bb78; color: white; }
-        .api-method.post { background: #4299e1; color: white; }
-        .api-method.put { background: #ed8936; color: white; }
-        .api-method.delete { background: #f56565; color: white; }
-        
-        .code-block {
-            background: #1a1a1a;
-            color: #00ff00;
-            padding: 1rem;
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.85rem;
-            overflow-x: auto;
-            margin-top: 0.5rem;
-        }
-        
-        /* PWA Install */
-        .pwa-install {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 1rem;
-            border-radius: 12px;
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-        
-        .pwa-install.show {
-            display: flex;
+            height: 350px;
+            margin-top: 1.5rem;
         }
         
         /* Views */
         .view {
             display: none;
+            animation: fadeIn 0.3s ease;
         }
         
         .view.active {
             display: block;
-            animation: fadeIn 0.3s ease;
         }
         
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Alert */
+        .alert {
+            padding: 1.25rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid var(--success);
+        }
+        
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid var(--danger);
+        }
+        
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border-left: 4px solid var(--info);
         }
         
         /* Responsive */
-        @media (max-width: 968px) {
-            .app-container {
+        @media (max-width: 1024px) {
+            .app-container.loaded {
                 grid-template-columns: 1fr;
             }
             
@@ -506,374 +570,214 @@
             .main-content {
                 margin-left: 0;
             }
-            
-            .chat-container {
-                grid-template-columns: 1fr;
-                height: auto;
+        }
+        
+        @media (max-width: 640px) {
+            .main-content {
+                padding: 1rem;
             }
             
-            .notification-panel {
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .header-actions {
                 width: 100%;
-                right: -100%;
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Loading Screen -->
     <div id="loadingScreen">
-        <div class="spinner"></div>
-        <div>Carregando sistema avançado...</div>
+        <div class="loader"></div>
+        <div class="loading-text">Carregando sistema...</div>
     </div>
     
-    <!-- PWA Install Banner -->
-    <div class="pwa-install" id="pwaInstall">
-        <div>
-            <strong>📱 Instalar App</strong>
-            <p style="font-size: 0.85rem; opacity: 0.9; margin-top: 0.25rem;">Acesse offline e receba notificações</p>
-        </div>
-        <div>
-            <button class="btn btn-small" style="background: white; color: var(--primary);" onclick="installPWA()">Instalar</button>
-            <button class="btn btn-small" style="background: rgba(255,255,255,0.2);" onclick="dismissPWA()">Agora não</button>
-        </div>
-    </div>
-    
-    <!-- Notification Panel -->
-    <div class="notification-panel" id="notificationPanel">
-        <div class="notification-header">
-            <h3>🔔 Notificações</h3>
-            <button onclick="toggleNotifications()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">✕</button>
-        </div>
-        <div id="notificationList">
-            <!-- Notificações serão inseridas aqui -->
-        </div>
-    </div>
-    
+    <!-- App Container -->
     <div class="app-container" id="appContainer">
+        <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="logo">
-                <h1>DCont</h1>
-                <p style="opacity: 0.7; font-size: 0.8rem;">Gestão Avançada</p>
+            <div class="logo-section">
+                <div class="logo">DCont</div>
+                <div class="logo-subtitle">Gestão Empresarial</div>
             </div>
             
-            <div class="user-info">
-                <div id="userEmail" style="margin-bottom: 0.5rem;">usuario@dcont.com</div>
-                <button class="btn-logout" onclick="logout()">🚪 Sair</button>
+            <div class="user-section">
+                <div class="user-email" id="userEmail">carregando...</div>
+                <button class="btn-logout" onclick="logout()">🚪 Sair do Sistema</button>
             </div>
             
             <ul class="nav">
-                <li class="nav-item active" onclick="showView('dashboard')">📊 Dashboard</li>
-                <li class="nav-item" onclick="showView('relatorios')">📈 Relatórios</li>
-                <li class="nav-item" onclick="showView('pipeline')">🎯 Pipeline</li>
-                <li class="nav-item" onclick="showView('leads')">👥 Leads</li>
-                <li class="nav-item" onclick="showView('chat')" style="position: relative;">
-                    💬 Chat
-                    <span class="notification-badge">3</span>
+                <li class="nav-item active" onclick="showView('dashboard')">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
                 </li>
-                <li class="nav-item" onclick="showView('propostas')">📝 Propostas</li>
-                <li class="nav-item" onclick="showView('projetos')">🚀 Projetos</li>
-                <li class="nav-item" onclick="showView('api')">🔌 API</li>
+                <li class="nav-item" onclick="showView('leads')">
+                    <span class="nav-icon">👥</span>
+                    <span>Leads</span>
+                </li>
+                <li class="nav-item" onclick="showView('pipeline')">
+                    <span class="nav-icon">🎯</span>
+                    <span>Pipeline</span>
+                </li>
+                <li class="nav-item" onclick="showView('relatorios')">
+                    <span class="nav-icon">📈</span>
+                    <span>Relatórios</span>
+                </li>
             </ul>
         </aside>
         
+        <!-- Main Content -->
         <main class="main-content">
-            <!-- Dashboard -->
+            <!-- Dashboard View -->
             <div class="view active" id="dashboard">
                 <div class="page-header">
-                    <h2>📊 Dashboard Avançado</h2>
-                    <div style="display: flex; gap: 0.75rem;">
-                        <button class="btn btn-secondary btn-small" onclick="toggleNotifications()" style="position: relative;">
-                            🔔 Notificações
-                            <span class="notification-badge">5</span>
+                    <div>
+                        <h1 class="page-title">Dashboard</h1>
+                        <p class="page-subtitle">Visão geral do seu negócio</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary btn-small" onclick="loadData()">
+                            🔄 Atualizar Dados
                         </button>
-                        <button class="btn btn-secondary btn-small" onclick="loadData()">🔄 Atualizar</button>
                     </div>
                 </div>
                 
+                <div id="alertContainer"></div>
+                
+                <!-- Stats -->
                 <div class="stats-grid">
                     <div class="stat-card">
+                        <div class="stat-label">Total de Leads</div>
                         <div class="stat-value" id="totalLeads">0</div>
-                        <div class="stat-label">Total Leads</div>
                         <div class="stat-change positive">↑ 12% vs mês anterior</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value" id="taxaConversao">0%</div>
                         <div class="stat-label">Taxa de Conversão</div>
+                        <div class="stat-value" id="taxaConversao">0%</div>
                         <div class="stat-change positive">↑ 5% vs mês anterior</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value" id="receitaMensal">R$ 0</div>
-                        <div class="stat-label">Receita Mensal</div>
-                        <div class="stat-change positive">↑ 23% vs mês anterior</div>
+                        <div class="stat-label">Clientes Ativos</div>
+                        <div class="stat-value" id="clientesAtivos">0</div>
+                        <div class="stat-change positive">↑ 8 novos clientes</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value" id="ticketMedio">R$ 0</div>
-                        <div class="stat-label">Ticket Médio</div>
-                        <div class="stat-change negative">↓ 3% vs mês anterior</div>
+                        <div class="stat-label">Receita Mensal</div>
+                        <div class="stat-value" id="receitaMensal">R$ 0</div>
+                        <div class="stat-change positive">↑ 23% vs mês anterior</div>
                     </div>
                 </div>
                 
-                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>📈 Leads por Mês</h3>
-                            <select id="chartPeriod" onchange="updateChart()" style="padding: 0.5rem; border-radius: 6px; border: 2px solid #e0e0e0;">
-                                <option value="6">Últimos 6 meses</option>
-                                <option value="12">Últimos 12 meses</option>
-                                <option value="24">Últimos 24 meses</option>
-                            </select>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="leadsChart"></canvas>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>🎯 Taxa de Conversão</h3>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="conversionChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Relatórios -->
-            <div class="view" id="relatorios">
-                <div class="page-header">
-                    <h2>📈 Relatórios Avançados</h2>
-                    <button class="btn btn-primary btn-small" onclick="exportarRelatorio()">📥 Exportar PDF</button>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
-                    <div class="card">
-                        <h3 style="margin-bottom: 1rem;">💰 Receita por Serviço</h3>
-                        <div class="chart-container">
-                            <canvas id="receitaServico"></canvas>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <h3 style="margin-bottom: 1rem;">📊 Pipeline de Vendas</h3>
-                        <div class="chart-container">
-                            <canvas id="pipelineChart"></canvas>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <h3 style="margin-bottom: 1rem;">⏱️ Tempo Médio de Fechamento</h3>
-                        <div class="chart-container">
-                            <canvas id="tempoFechamento"></canvas>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <h3 style="margin-bottom: 1rem;">📈 Crescimento MRR</h3>
-                        <div class="chart-container">
-                            <canvas id="mrrChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Chat -->
-            <div class="view" id="chat">
-                <div class="page-header">
-                    <h2>💬 Chat Interno</h2>
-                    <span style="font-size: 0.9rem; color: #666;">Tempo real via Firebase</span>
-                </div>
-                
-                <div class="chat-container">
-                    <div class="chat-users">
-                        <h4 style="margin-bottom: 1rem;">Equipe Online</h4>
-                        <div class="chat-user active">
-                            <div class="chat-avatar">JD</div>
-                            <div>
-                                <div style="font-weight: 600;">João Dias</div>
-                                <div style="font-size: 0.8rem; opacity: 0.7;">Online</div>
-                            </div>
-                        </div>
-                        <div class="chat-user">
-                            <div class="chat-avatar">MS</div>
-                            <div>
-                                <div style="font-weight: 600;">Maria Silva</div>
-                                <div style="font-size: 0.8rem; opacity: 0.7;">Ausente</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="chat-main">
-                        <div class="chat-header">
-                            💬 Conversa com João Dias
-                        </div>
-                        <div class="chat-messages" id="chatMessages">
-                            <div class="chat-message">
-                                <div class="chat-avatar" style="width: 35px; height: 35px; font-size: 0.85rem;">JD</div>
-                                <div>
-                                    <div class="chat-message-bubble">
-                                        Olá! Vi que temos um novo lead qualificado. Vamos agendar uma reunião?
-                                    </div>
-                                    <div style="font-size: 0.75rem; opacity: 0.6; margin-top: 0.25rem;">10:30</div>
-                                </div>
-                            </div>
-                            
-                            <div class="chat-message own">
-                                <div>
-                                    <div class="chat-message-bubble">
-                                        Boa! Já mandei o convite no Google Calendar. Diagnóstico 360° marcado para quinta-feira.
-                                    </div>
-                                    <div style="font-size: 0.75rem; opacity: 0.6; margin-top: 0.25rem; text-align: right;">10:32</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="chat-input">
-                            <input type="text" placeholder="Digite sua mensagem..." id="chatInput" onkeypress="if(event.key==='Enter') sendMessage()">
-                            <button class="btn btn-primary" onclick="sendMessage()">Enviar</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- API Documentation -->
-            <div class="view" id="api">
-                <div class="page-header">
-                    <h2>🔌 API Pública</h2>
-                    <button class="btn btn-primary btn-small" onclick="gerarAPIKey()">🔑 Gerar API Key</button>
-                </div>
-                
+                <!-- Chart -->
                 <div class="card">
-                    <h3>Sua API Key</h3>
-                    <div class="code-block" style="margin-top: 1rem;">
-                        <span id="apiKey">sk_live_xxxxxxxxxxxxxxxxxxxxxxxxxx</span>
-                        <button onclick="copyAPIKey()" style="float: right; background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">📋 Copiar</button>
+                    <div class="card-header">
+                        <h3 class="card-title">Leads nos Últimos 6 Meses</h3>
+                        <select class="btn btn-secondary btn-small" onchange="updateChart(this.value)">
+                            <option value="6">Últimos 6 meses</option>
+                            <option value="12">Últimos 12 meses</option>
+                        </select>
                     </div>
-                    <p style="color: #666; margin-top: 1rem; font-size: 0.9rem;">⚠️ Mantenha sua API Key em segurança. Não compartilhe publicamente.</p>
-                </div>
-                
-                <div class="card">
-                    <h3>Endpoints Disponíveis</h3>
-                    
-                    <div class="api-endpoint">
-                        <div>
-                            <span class="api-method get">GET</span>
-                            <code>/api/v1/leads</code>
-                        </div>
-                        <p style="margin: 0.75rem 0; color: #666;">Listar todos os leads</p>
-                        <div class="code-block">
-curl -X GET https://api.dcont.com.br/v1/leads \
-  -H "Authorization: Bearer YOUR_API_KEY"
-                        </div>
-                    </div>
-                    
-                    <div class="api-endpoint">
-                        <div>
-                            <span class="api-method post">POST</span>
-                            <code>/api/v1/leads</code>
-                        </div>
-                        <p style="margin: 0.75rem 0; color: #666;">Criar novo lead</p>
-                        <div class="code-block">
-curl -X POST https://api.dcont.com.br/v1/leads \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "nome": "João Silva",
-    "email": "joao@empresa.com",
-    "empresa": "Empresa ABC"
-  }'
-                        </div>
-                    </div>
-                    
-                    <div class="api-endpoint">
-                        <div>
-                            <span class="api-method get">GET</span>
-                            <code>/api/v1/relatorios</code>
-                        </div>
-                        <p style="margin: 0.75rem 0; color: #666;">Obter relatórios e métricas</p>
-                        <div class="code-block">
-curl -X GET https://api.dcont.com.br/v1/relatorios?periodo=30d \
-  -H "Authorization: Bearer YOUR_API_KEY"
-                        </div>
-                    </div>
-                    
-                    <div class="api-endpoint">
-                        <div>
-                            <span class="api-method put">PUT</span>
-                            <code>/api/v1/leads/:id</code>
-                        </div>
-                        <p style="margin: 0.75rem 0; color: #666;">Atualizar lead</p>
-                        <div class="code-block">
-curl -X PUT https://api.dcont.com.br/v1/leads/abc123 \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"status": "cliente"}'
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <h3>Webhooks</h3>
-                    <p style="color: #666; margin-bottom: 1rem;">Configure webhooks para receber notificações em tempo real de eventos importantes.</p>
-                    
-                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px;">
-                        <p><strong>Eventos Disponíveis:</strong></p>
-                        <ul style="margin-left: 1.5rem; margin-top: 0.5rem; line-height: 1.8;">
-                            <li><code>lead.created</code> - Novo lead criado</li>
-                            <li><code>lead.updated</code> - Lead atualizado</li>
-                            <li><code>lead.converted</code> - Lead convertido em cliente</li>
-                            <li><code>proposta.enviada</code> - Proposta enviada</li>
-                            <li><code>projeto.criado</code> - Novo projeto criado</li>
-                        </ul>
+                    <div class="chart-container">
+                        <canvas id="leadsChart"></canvas>
                     </div>
                 </div>
             </div>
             
-            <!-- Views anteriores (Pipeline, Leads, etc) -->
-            <div class="view" id="pipeline">
-                <div class="page-header">
-                    <h2>🎯 Pipeline de Vendas</h2>
-                </div>
-                <div class="card">
-                    <p>Pipeline Kanban aqui...</p>
-                </div>
-            </div>
-            
+            <!-- Leads View -->
             <div class="view" id="leads">
                 <div class="page-header">
-                    <h2>👥 Gestão de Leads</h2>
+                    <div>
+                        <h1 class="page-title">Gestão de Leads</h1>
+                        <p class="page-subtitle">Todos os leads capturados</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-primary btn-small" onclick="exportarLeads()">
+                            📥 Exportar Lista
+                        </button>
+                        <button class="btn btn-secondary btn-small" onclick="loadData()">
+                            🔄 Atualizar
+                        </button>
+                    </div>
                 </div>
+                
                 <div class="card">
-                    <table id="leadsTable">
-                        <thead>
-                            <tr>
-                                <th>Data</th>
-                                <th>Nome</th>
-                                <th>Email</th>
-                                <th>Status</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td colspan="5">Carregando...</td></tr>
-                        </tbody>
-                    </table>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Nome</th>
+                                    <th>E-mail</th>
+                                    <th>Empresa</th>
+                                    <th>Faturamento</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leadsTable">
+                                <tr>
+                                    <td colspan="7">
+                                        <div class="empty-state">
+                                            <div class="empty-icon">📋</div>
+                                            <div class="empty-title">Carregando leads...</div>
+                                            <div class="empty-description">Aguarde enquanto buscamos os dados</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             
-            <div class="view" id="propostas">
+            <!-- Pipeline View -->
+            <div class="view" id="pipeline">
                 <div class="page-header">
-                    <h2>📝 Propostas</h2>
+                    <div>
+                        <h1 class="page-title">Pipeline de Vendas</h1>
+                        <p class="page-subtitle">Funil visual de conversão</p>
+                    </div>
                 </div>
+                
                 <div class="card">
-                    <p>Gerador de propostas aqui...</p>
+                    <div class="empty-state">
+                        <div class="empty-icon">🎯</div>
+                        <div class="empty-title">Pipeline em Desenvolvimento</div>
+                        <div class="empty-description">Esta funcionalidade será implementada em breve</div>
+                    </div>
                 </div>
             </div>
             
-            <div class="view" id="projetos">
+            <!-- Relatórios View -->
+            <div class="view" id="relatorios">
                 <div class="page-header">
-                    <h2>🚀 Projetos</h2>
+                    <div>
+                        <h1 class="page-title">Relatórios Avançados</h1>
+                        <p class="page-subtitle">Análises e métricas do negócio</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-primary btn-small" onclick="exportarRelatorio()">
+                            📥 Exportar PDF
+                        </button>
+                    </div>
                 </div>
+                
                 <div class="card">
-                    <p>Gestão de projetos aqui...</p>
+                    <div class="empty-state">
+                        <div class="empty-icon">📈</div>
+                        <div class="empty-title">Relatórios em Desenvolvimento</div>
+                        <div class="empty-description">Gráficos e análises serão adicionados em breve</div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -883,7 +787,7 @@ curl -X PUT https://api.dcont.com.br/v1/leads/abc123 \
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getFirestore, collection, getDocs, addDoc, query, orderBy, Timestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, collection, getDocs, query, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
         
         const firebaseConfig = {
             apiKey: "AIzaSyDtRTKhlogKi9DGp_7kRWDVkeLFzAWMHek",
@@ -898,43 +802,36 @@ curl -X PUT https://api.dcont.com.br/v1/leads/abc123 \
         const auth = getAuth(app);
         const db = getFirestore(app);
         
-        let currentUser = null;
-        let leadsChart, conversionChart;
+        let leadsChart = null;
         
         onAuthStateChanged(auth, (user) => {
             const loadingScreen = document.getElementById('loadingScreen');
             const appContainer = document.getElementById('appContainer');
             
             if (user) {
-                currentUser = user;
                 document.getElementById('userEmail').textContent = user.email;
                 loadingScreen.style.display = 'none';
                 appContainer.classList.add('loaded');
-                
-                // Mostrar banner de instalação PWA
-                setTimeout(() => {
-                    document.getElementById('pwaInstall').classList.add('show');
-                }, 2000);
-                
                 window.loadData();
                 initCharts();
-                requestNotificationPermission();
             } else {
                 window.location.href = 'login-dcont.html';
             }
         });
         
         window.logout = async () => {
-            if (confirm('Deseja sair?')) {
+            if (confirm('Deseja sair do sistema?')) {
                 await signOut(auth);
                 window.location.href = 'login-dcont.html';
             }
         };
         
         window.loadData = async () => {
+            showAlert('🔄 Carregando dados do Firebase...', 'info');
+            
             try {
                 const leadsRef = collection(db, 'leads');
-                const q = query(leadsRef, orderBy('createdAt', 'desc'));
+                const q = query(leadsRef, orderBy('createdAt', 'desc'), limit(100));
                 const snapshot = await getDocs(q);
                 
                 const leads = [];
@@ -943,28 +840,77 @@ curl -X PUT https://api.dcont.com.br/v1/leads/abc123 \
                 });
                 
                 // Atualizar estatísticas
-                document.getElementById('totalLeads').textContent = leads.length;
+                const totalLeads = leads.length;
+                const convertidos = leads.filter(l => l.status === 'cliente' || l.status === 'convertido').length;
+                const taxaConversao = totalLeads > 0 ? ((convertidos / totalLeads) * 100).toFixed(1) : 0;
                 
-                const convertidos = leads.filter(l => l.status === 'cliente').length;
-                const taxaConversao = leads.length > 0 ? ((convertidos / leads.length) * 100).toFixed(1) : 0;
+                document.getElementById('totalLeads').textContent = totalLeads;
                 document.getElementById('taxaConversao').textContent = taxaConversao + '%';
+                document.getElementById('clientesAtivos').textContent = convertidos;
+                document.getElementById('receitaMensal').textContent = 'R$ ' + (convertidos * 7500).toLocaleString('pt-BR');
                 
-                // Simular receita e ticket médio
-                const receita = convertidos * 7500;
-                document.getElementById('receitaMensal').textContent = 'R$ ' + receita.toLocaleString('pt-BR');
-                document.getElementById('ticketMedio').textContent = 'R$ 7.500';
+                // Atualizar tabela
+                updateLeadsTable(leads);
                 
-                updateChartsWithData(leads);
+                showAlert(`✅ ${totalLeads} lead(s) carregado(s) com sucesso!`, 'success');
                 
             } catch (error) {
-                console.error('Erro ao carregar dados:', error);
+                console.error('Erro:', error);
+                showAlert('❌ Erro ao carregar dados: ' + error.message, 'error');
             }
         };
         
+        function updateLeadsTable(leads) {
+            const tbody = document.getElementById('leadsTable');
+            
+            if (leads.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="empty-icon">📭</div>
+                                <div class="empty-title">Nenhum lead ainda</div>
+                                <div class="empty-description">Os leads capturados aparecerão aqui</div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = leads.map(lead => {
+                const data = lead.createdAt?.toDate?.().toLocaleDateString('pt-BR') || 'N/A';
+                const statusClass = {
+                    'novo': 'badge-novo',
+                    'contato': 'badge-contato',
+                    'qualificado': 'badge-qualificado',
+                    'cliente': 'badge-convertido',
+                    'convertido': 'badge-convertido'
+                }[lead.status || 'novo'] || 'badge-novo';
+                
+                return `
+                    <tr>
+                        <td>${data}</td>
+                        <td><strong>${lead.nome || 'N/A'}</strong></td>
+                        <td>${lead.email || 'N/A'}</td>
+                        <td>${lead.empresa || '-'}</td>
+                        <td>${lead.faturamento || '-'}</td>
+                        <td><span class="badge ${statusClass}">${(lead.status || 'novo').toUpperCase()}</span></td>
+                        <td>
+                            <button class="btn btn-primary btn-small" onclick="verDetalhes('${lead.id}')">
+                                👁️ Ver
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
         function initCharts() {
-            // Gráfico de Leads
-            const ctx1 = document.getElementById('leadsChart').getContext('2d');
-            leadsChart = new Chart(ctx1, {
+            const ctx = document.getElementById('leadsChart');
+            if (!ctx) return;
+            
+            leadsChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
@@ -974,276 +920,86 @@ curl -X PUT https://api.dcont.com.br/v1/leads/abc123 \
                         borderColor: '#1a4d2e',
                         backgroundColor: 'rgba(26, 77, 46, 0.1)',
                         tension: 0.4,
-                        fill: true
+                        fill: true,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: false }
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#e1e6dd'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
                     }
                 }
             });
-            
-            // Gráfico de Conversão
-            const ctx2 = document.getElementById('conversionChart').getContext('2d');
-            conversionChart = new Chart(ctx2, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Convertidos', 'Em processo'],
-                    datasets: [{
-                        data: [30, 70],
-                        backgroundColor: ['#48bb78', '#e0e0e0']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom' }
-                    }
-                }
-            });
-            
-            // Outros gráficos
-            initOtherCharts();
         }
         
-        function initOtherCharts() {
-            // Receita por Serviço
-            new Chart(document.getElementById('receitaServico').getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: ['Diagnóstico', 'Planejamento', 'Controladoria', 'Gestão 360°'],
-                    datasets: [{
-                        label: 'Receita (R$)',
-                        data: [12500, 28000, 35000, 84000],
-                        backgroundColor: '#1a4d2e'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
+        function showAlert(message, type) {
+            const container = document.getElementById('alertContainer');
+            if (!container) return;
             
-            // Pipeline
-            new Chart(document.getElementById('pipelineChart').getContext('2d'), {
-                type: 'funnel',
-                data: {
-                    labels: ['Leads', 'Qualificados', 'Proposta', 'Clientes'],
-                    datasets: [{
-                        data: [100, 60, 35, 20],
-                        backgroundColor: ['#1a4d2e', '#4f772d', '#d4a574', '#48bb78']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `<span>${message}</span>`;
             
-            // Tempo de Fechamento
-            new Chart(document.getElementById('tempoFechamento').getContext('2d'), {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-                    datasets: [{
-                        label: 'Dias',
-                        data: [45, 42, 38, 35, 32, 30],
-                        borderColor: '#4f772d',
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
+            container.innerHTML = '';
+            container.appendChild(alert);
             
-            // MRR
-            new Chart(document.getElementById('mrrChart').getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-                    datasets: [{
-                        label: 'MRR (R$)',
-                        data: [45000, 52000, 58000, 65000, 71000, 78000],
-                        backgroundColor: '#48bb78'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
         }
         
-        function updateChartsWithData(leads) {
-            // Atualizar gráficos com dados reais
-            if (leadsChart) {
-                // Implementar lógica de atualização
-            }
-        }
-        
+        window.showAlert = showAlert;
         window.db = db;
-        window.auth = auth;
     </script>
     
     <script>
-        // Navegação
+        // Navigation
         function showView(viewName) {
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
-            document.getElementById(viewName).classList.add('active');
-            event.target.classList.add('active');
-        }
-        
-        // Notificações
-        function toggleNotifications() {
-            const panel = document.getElementById('notificationPanel');
-            panel.classList.toggle('open');
-            loadNotifications();
-        }
-        
-        function loadNotifications() {
-            const list = document.getElementById('notificationList');
-            list.innerHTML = `
-                <div class="notification-item unread">
-                    <strong>Novo Lead Recebido</strong>
-                    <p style="font-size: 0.85rem; margin-top: 0.25rem; color: #666;">João Silva preencheu o formulário</p>
-                    <p style="font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.6;">Há 5 minutos</p>
-                </div>
-                <div class="notification-item unread">
-                    <strong>Proposta Visualizada</strong>
-                    <p style="font-size: 0.85rem; margin-top: 0.25rem; color: #666;">Maria Santos abriu a proposta</p>
-                    <p style="font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.6;">Há 1 hora</p>
-                </div>
-                <div class="notification-item">
-                    <strong>Reunião Agendada</strong>
-                    <p style="font-size: 0.85rem; margin-top: 0.25rem; color: #666;">Diagnóstico 360° confirmado</p>
-                    <p style="font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.6;">Há 2 horas</p>
-                </div>
-            `;
-        }
-        
-        // Push Notifications
-        function requestNotificationPermission() {
-            if ('Notification' in window && 'serviceWorker' in navigator) {
-                Notification.requestPermission().then(permission => {
-                    if (permission === 'granted') {
-                        console.log('Notificações push ativadas');
-                        subscribeUserToPush();
-                    }
-                });
-            }
-        }
-        
-        function subscribeUserToPush() {
-            navigator.serviceWorker.ready.then(registration => {
-                // Implementar push subscription
-                console.log('Push subscription configurado');
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
             });
-        }
-        
-        function showPushNotification(title, body) {
-            if (Notification.permission === 'granted') {
-                new Notification(title, {
-                    body: body,
-                    icon: '/icon-192.png',
-                    badge: '/icon-72.png'
-                });
-            }
-        }
-        
-        // PWA Installation
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-        });
-        
-        function installPWA() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('PWA instalado');
-                    }
-                    deferredPrompt = null;
-                    dismissPWA();
-                });
-            }
-        }
-        
-        function dismissPWA() {
-            document.getElementById('pwaInstall').classList.remove('show');
-        }
-        
-        // Chat
-        function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const message = input.value.trim();
             
-            if (message) {
-                const messagesDiv = document.getElementById('chatMessages');
-                const now = new Date();
-                const time = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-                
-                const messageHTML = `
-                    <div class="chat-message own">
-                        <div>
-                            <div class="chat-message-bubble">${message}</div>
-                            <div style="font-size: 0.75rem; opacity: 0.6; margin-top: 0.25rem; text-align: right;">${time}</div>
-                        </div>
-                    </div>
-                `;
-                
-                messagesDiv.innerHTML += messageHTML;
-                messagesDiv.scrollTop = messagesDiv.scrollHeight;
-                input.value = '';
-                
-                // Simular resposta
-                setTimeout(() => {
-                    const replyHTML = `
-                        <div class="chat-message">
-                            <div class="chat-avatar" style="width: 35px; height: 35px; font-size: 0.85rem;">JD</div>
-                            <div>
-                                <div class="chat-message-bubble">Perfeito! Vou preparar os materiais para a reunião.</div>
-                                <div style="font-size: 0.75rem; opacity: 0.6; margin-top: 0.25rem;">${time}</div>
-                            </div>
-                        </div>
-                    `;
-                    messagesDiv.innerHTML += replyHTML;
-                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-                    
-                    showPushNotification('Nova Mensagem', 'João Dias respondeu no chat');
-                }, 2000);
-            }
-        }
-        
-        // API
-        function gerarAPIKey() {
-            const key = 'sk_live_' + Math.random().toString(36).substring(2, 30);
-            document.getElementById('apiKey').textContent = key;
-            alert('Nova API Key gerada com sucesso!');
-        }
-        
-        function copyAPIKey() {
-            const key = document.getElementById('apiKey').textContent;
-            navigator.clipboard.writeText(key).then(() => {
-                alert('API Key copiada!');
+            document.querySelectorAll('.view').forEach(view => {
+                view.classList.remove('active');
             });
+            
+            document.getElementById(viewName).classList.add('active');
+            event.target.closest('.nav-item').classList.add('active');
         }
         
-        // Exportar Relatório
+        // Actions
+        function verDetalhes(id) {
+            alert('Detalhes do lead: ' + id);
+        }
+        
+        function exportarLeads() {
+            alert('Exportação de leads em desenvolvimento');
+        }
+        
         function exportarRelatorio() {
-            alert('Exportação de relatório em PDF será implementada');
+            alert('Exportação de relatório em desenvolvimento');
         }
         
-        function updateChart() {
-            alert('Atualização de período do gráfico');
+        function updateChart(period) {
+            console.log('Período alterado:', period);
         }
     </script>
 </body>
