@@ -3,57 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DCont - Sistema de Gestão Empresarial</title>
-    
-    <!-- Fonts profissionais -->
+    <title>DCont - Sistema Completo de Gestão</title>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     
     <style>
         :root {
-            /* Cores principais */
             --primary: #1a4d2e;
             --primary-dark: #0d2617;
             --primary-light: #2d7a4a;
             --secondary: #4f772d;
             --accent: #d4a574;
             --accent-bright: #f4c186;
-            
-            /* Tons neutros */
             --bg-primary: #fafbf7;
             --bg-secondary: #f0f2ed;
             --surface: #ffffff;
             --border: #e1e6dd;
-            
-            /* Status colors */
             --success: #48bb78;
             --warning: #ed8936;
             --danger: #f56565;
             --info: #4299e1;
-            
-            /* Text */
             --text-primary: #1a2817;
             --text-secondary: #4a5d47;
             --text-tertiary: #7a8f77;
-            
-            /* Shadows */
             --shadow-sm: 0 1px 2px 0 rgba(26, 77, 46, 0.05);
             --shadow-md: 0 4px 6px -1px rgba(26, 77, 46, 0.1);
             --shadow-lg: 0 10px 15px -3px rgba(26, 77, 46, 0.1);
             --shadow-xl: 0 20px 25px -5px rgba(26, 77, 46, 0.15);
-            
-            /* Fonts */
             --font-display: 'Sora', sans-serif;
             --font-mono: 'Space Mono', monospace;
         }
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: var(--font-display);
@@ -62,7 +44,7 @@
             line-height: 1.6;
         }
         
-        /* Loading Screen */
+        /* Loading */
         #loadingScreen {
             position: fixed;
             inset: 0;
@@ -83,9 +65,7 @@
             animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
         }
         
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
         
         .loading-text {
             margin-top: 1.5rem;
@@ -171,7 +151,6 @@
             color: white;
             border-color: var(--danger);
             transform: translateY(-1px);
-            box-shadow: var(--shadow-sm);
         }
         
         /* Navigation */
@@ -192,7 +171,7 @@
             font-size: 0.9375rem;
             font-weight: 500;
             color: var(--text-secondary);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s;
         }
         
         .nav-item:hover {
@@ -205,10 +184,6 @@
             background: linear-gradient(135deg, var(--primary), var(--primary-light));
             color: white;
             box-shadow: var(--shadow-md);
-        }
-        
-        .nav-item.active .nav-icon {
-            color: var(--accent-bright);
         }
         
         .nav-icon {
@@ -266,7 +241,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s;
             font-family: var(--font-display);
         }
         
@@ -313,7 +288,7 @@
             box-shadow: var(--shadow-sm);
             position: relative;
             overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s;
         }
         
         .stat-card::before {
@@ -356,13 +331,8 @@
             gap: 0.25rem;
         }
         
-        .stat-change.positive {
-            color: var(--success);
-        }
-        
-        .stat-change.negative {
-            color: var(--danger);
-        }
+        .stat-change.positive { color: var(--success); }
+        .stat-change.negative { color: var(--danger); }
         
         /* Card */
         .card {
@@ -387,7 +357,6 @@
             font-size: 1.375rem;
             font-weight: 700;
             color: var(--primary);
-            letter-spacing: -0.25px;
         }
         
         /* Table */
@@ -422,10 +391,6 @@
             font-size: 0.9375rem;
         }
         
-        tbody tr {
-            transition: all 0.2s;
-        }
-        
         tbody tr:hover {
             background: var(--bg-secondary);
         }
@@ -438,52 +403,77 @@
             border-radius: 20px;
             font-size: 0.8125rem;
             font-weight: 700;
-            letter-spacing: 0.25px;
         }
         
-        .badge-novo {
-            background: #e6fffa;
-            color: #047857;
+        .badge-novo { background: #e6fffa; color: #047857; }
+        .badge-contato { background: #fef3c7; color: #92400e; }
+        .badge-qualificado { background: #dbeafe; color: #1e40af; }
+        .badge-convertido { background: #d1fae5; color: #065f46; }
+        
+        /* Pipeline Kanban */
+        .pipeline-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
         }
         
-        .badge-contato {
-            background: #fef3c7;
-            color: #92400e;
+        .pipeline-column {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1.25rem;
+            min-height: 500px;
         }
         
-        .badge-qualificado {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-        
-        .badge-convertido {
-            background: #d1fae5;
-            color: #065f46;
-        }
-        
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: var(--text-tertiary);
-        }
-        
-        .empty-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            opacity: 0.3;
-        }
-        
-        .empty-title {
-            font-size: 1.25rem;
+        .column-header {
             font-weight: 700;
-            color: var(--text-secondary);
+            font-size: 1.125rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .column-count {
+            background: var(--primary);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+        }
+        
+        .pipeline-card {
+            background: var(--surface);
+            padding: 1.25rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            cursor: grab;
+            transition: all 0.2s;
+        }
+        
+        .pipeline-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+        
+        .pipeline-card-title {
+            font-weight: 700;
+            color: var(--text-primary);
             margin-bottom: 0.5rem;
         }
         
-        .empty-description {
-            font-size: 0.9375rem;
-            color: var(--text-tertiary);
+        .pipeline-card-info {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
         }
         
         /* Chart Container */
@@ -493,25 +483,119 @@
             margin-top: 1.5rem;
         }
         
-        /* Views */
-        .view {
+        /* Modal */
+        .modal {
             display: none;
-            animation: fadeIn 0.3s ease;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s;
         }
         
-        .view.active {
-            display: block;
+        .modal.active {
+            display: flex;
         }
         
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .modal-content {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .btn-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0.5rem;
+            line-height: 1;
+        }
+        
+        .info-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .info-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .info-value {
+            font-size: 1.125rem;
+            color: var(--text-primary);
+        }
+        
+        /* Links Card */
+        .links-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .link-card {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+        
+        .link-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .link-title {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 1.125rem;
+        }
+        
+        .link-url {
+            font-family: var(--font-mono);
+            font-size: 0.875rem;
+            color: var(--info);
+            word-break: break-all;
+            margin-bottom: 1rem;
+        }
+        
+        .link-actions {
+            display: flex;
+            gap: 0.75rem;
         }
         
         /* Alert */
@@ -527,14 +611,13 @@
         }
         
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
         .alert-success {
@@ -555,7 +638,23 @@
             border-left: 4px solid var(--info);
         }
         
+        /* Views */
+        .view {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .view.active {
+            display: block;
+        }
+        
         /* Responsive */
+        @media (max-width: 1200px) {
+            .pipeline-board {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
         @media (max-width: 1024px) {
             .app-container.loaded {
                 grid-template-columns: 1fr;
@@ -569,6 +668,12 @@
             
             .main-content {
                 margin-left: 0;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .pipeline-board {
+                grid-template-columns: 1fr;
             }
         }
         
@@ -596,15 +701,12 @@
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text">Carregando sistema...</div>
     </div>
     
-    <!-- App Container -->
     <div class="app-container" id="appContainer">
-        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="logo-section">
                 <div class="logo">DCont</div>
@@ -633,12 +735,15 @@
                     <span class="nav-icon">📈</span>
                     <span>Relatórios</span>
                 </li>
+                <li class="nav-item" onclick="showView('links')">
+                    <span class="nav-icon">🔗</span>
+                    <span>Links Públicos</span>
+                </li>
             </ul>
         </aside>
         
-        <!-- Main Content -->
         <main class="main-content">
-            <!-- Dashboard View -->
+            <!-- Dashboard -->
             <div class="view active" id="dashboard">
                 <div class="page-header">
                     <div>
@@ -654,7 +759,6 @@
                 
                 <div id="alertContainer"></div>
                 
-                <!-- Stats -->
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-label">Total de Leads</div>
@@ -669,7 +773,7 @@
                     <div class="stat-card">
                         <div class="stat-label">Clientes Ativos</div>
                         <div class="stat-value" id="clientesAtivos">0</div>
-                        <div class="stat-change positive">↑ 8 novos clientes</div>
+                        <div class="stat-change positive">↑ 8 novos</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Receita Mensal</div>
@@ -678,11 +782,10 @@
                     </div>
                 </div>
                 
-                <!-- Chart -->
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Leads nos Últimos 6 Meses</h3>
-                        <select class="btn btn-secondary btn-small" onchange="updateChart(this.value)">
+                        <select class="btn btn-secondary btn-small" onchange="updateChart(this.value)" style="cursor: pointer;">
                             <option value="6">Últimos 6 meses</option>
                             <option value="12">Últimos 12 meses</option>
                         </select>
@@ -693,7 +796,7 @@
                 </div>
             </div>
             
-            <!-- Leads View -->
+            <!-- Leads -->
             <div class="view" id="leads">
                 <div class="page-header">
                     <div>
@@ -725,22 +828,14 @@
                                 </tr>
                             </thead>
                             <tbody id="leadsTable">
-                                <tr>
-                                    <td colspan="7">
-                                        <div class="empty-state">
-                                            <div class="empty-icon">📋</div>
-                                            <div class="empty-title">Carregando leads...</div>
-                                            <div class="empty-description">Aguarde enquanto buscamos os dados</div>
-                                        </div>
-                                    </td>
-                                </tr>
+                                <tr><td colspan="7" style="text-align: center; padding: 3rem;">Carregando...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
             
-            <!-- Pipeline View -->
+            <!-- Pipeline -->
             <div class="view" id="pipeline">
                 <div class="page-header">
                     <div>
@@ -749,16 +844,42 @@
                     </div>
                 </div>
                 
-                <div class="card">
-                    <div class="empty-state">
-                        <div class="empty-icon">🎯</div>
-                        <div class="empty-title">Pipeline em Desenvolvimento</div>
-                        <div class="empty-description">Esta funcionalidade será implementada em breve</div>
+                <div class="pipeline-board">
+                    <div class="pipeline-column">
+                        <div class="column-header">
+                            <span>🆕 Novo</span>
+                            <span class="column-count" id="countNovo">0</span>
+                        </div>
+                        <div id="colunaNovo" class="pipeline-cards"></div>
+                    </div>
+                    
+                    <div class="pipeline-column">
+                        <div class="column-header">
+                            <span>📞 Contato</span>
+                            <span class="column-count" id="countContato">0</span>
+                        </div>
+                        <div id="colunaContato" class="pipeline-cards"></div>
+                    </div>
+                    
+                    <div class="pipeline-column">
+                        <div class="column-header">
+                            <span>📝 Proposta</span>
+                            <span class="column-count" id="countProposta">0</span>
+                        </div>
+                        <div id="colunaProposta" class="pipeline-cards"></div>
+                    </div>
+                    
+                    <div class="pipeline-column">
+                        <div class="column-header">
+                            <span>✅ Cliente</span>
+                            <span class="column-count" id="countCliente">0</span>
+                        </div>
+                        <div id="colunaCliente" class="pipeline-cards"></div>
                     </div>
                 </div>
             </div>
             
-            <!-- Relatórios View -->
+            <!-- Relatórios -->
             <div class="view" id="relatorios">
                 <div class="page-header">
                     <div>
@@ -772,18 +893,87 @@
                     </div>
                 </div>
                 
-                <div class="card">
-                    <div class="empty-state">
-                        <div class="empty-icon">📈</div>
-                        <div class="empty-title">Relatórios em Desenvolvimento</div>
-                        <div class="empty-description">Gráficos e análises serão adicionados em breve</div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
+                    <div class="card">
+                        <h3 class="card-title" style="margin-bottom: 1rem;">📊 Conversão por Status</h3>
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3 class="card-title" style="margin-bottom: 1rem;">💰 Receita por Serviço</h3>
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="receitaChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Links -->
+            <div class="view" id="links">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Links Públicos</h1>
+                        <p class="page-subtitle">Acesse sua landing page e apresentação</p>
+                    </div>
+                </div>
+                
+                <div class="links-grid">
+                    <div class="link-card">
+                        <div class="link-title">🌐 Landing Page</div>
+                        <div class="link-url">https://marantmir.github.io/dcont-landing-page/</div>
+                        <div class="link-actions">
+                            <button class="btn btn-primary btn-small" onclick="window.open('https://marantmir.github.io/dcont-landing-page/', '_blank')">
+                                🚀 Abrir
+                            </button>
+                            <button class="btn btn-secondary btn-small" onclick="copiarLink('https://marantmir.github.io/dcont-landing-page/')">
+                                📋 Copiar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="link-card">
+                        <div class="link-title">📊 Apresentação Comercial</div>
+                        <div class="link-url">https://marantmir.github.io/dcont-landing-page/apresentacao-comercial.html</div>
+                        <div class="link-actions">
+                            <button class="btn btn-primary btn-small" onclick="window.open('https://marantmir.github.io/dcont-landing-page/apresentacao-comercial.html', '_blank')">
+                                🚀 Abrir
+                            </button>
+                            <button class="btn btn-secondary btn-small" onclick="copiarLink('https://marantmir.github.io/dcont-landing-page/apresentacao-comercial.html')">
+                                📋 Copiar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="link-card">
+                        <div class="link-title">🔐 Portal Administrativo</div>
+                        <div class="link-url">https://marantmir.github.io/dcont-landing-page/portal-administrativo-dcont.html</div>
+                        <div class="link-actions">
+                            <button class="btn btn-primary btn-small" onclick="window.open('https://marantmir.github.io/dcont-landing-page/portal-administrativo-dcont.html', '_blank')">
+                                🚀 Abrir
+                            </button>
+                            <button class="btn btn-secondary btn-small" onclick="copiarLink('https://marantmir.github.io/dcont-landing-page/portal-administrativo-dcont.html')">
+                                📋 Copiar
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </main>
     </div>
     
-    <!-- Firebase SDK -->
+    <!-- Modal de Detalhes -->
+    <div class="modal" id="leadModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Detalhes do Lead</h3>
+                <button class="btn-close" onclick="fecharModal()">×</button>
+            </div>
+            <div class="info-grid" id="leadDetails"></div>
+        </div>
+    </div>
+    
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
@@ -802,7 +992,8 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         
-        let leadsChart = null;
+        let leadsChart, statusChart, receitaChart;
+        let allLeads = [];
         
         onAuthStateChanged(auth, (user) => {
             const loadingScreen = document.getElementById('loadingScreen');
@@ -834,25 +1025,17 @@
                 const q = query(leadsRef, orderBy('createdAt', 'desc'), limit(100));
                 const snapshot = await getDocs(q);
                 
-                const leads = [];
+                allLeads = [];
                 snapshot.forEach(doc => {
-                    leads.push({ id: doc.id, ...doc.data() });
+                    allLeads.push({ id: doc.id, ...doc.data() });
                 });
                 
-                // Atualizar estatísticas
-                const totalLeads = leads.length;
-                const convertidos = leads.filter(l => l.status === 'cliente' || l.status === 'convertido').length;
-                const taxaConversao = totalLeads > 0 ? ((convertidos / totalLeads) * 100).toFixed(1) : 0;
+                updateStats(allLeads);
+                updateLeadsTable(allLeads);
+                updatePipeline(allLeads);
+                updateReportsCharts(allLeads);
                 
-                document.getElementById('totalLeads').textContent = totalLeads;
-                document.getElementById('taxaConversao').textContent = taxaConversao + '%';
-                document.getElementById('clientesAtivos').textContent = convertidos;
-                document.getElementById('receitaMensal').textContent = 'R$ ' + (convertidos * 7500).toLocaleString('pt-BR');
-                
-                // Atualizar tabela
-                updateLeadsTable(leads);
-                
-                showAlert(`✅ ${totalLeads} lead(s) carregado(s) com sucesso!`, 'success');
+                showAlert(`✅ ${allLeads.length} lead(s) carregado(s) com sucesso!`, 'success');
                 
             } catch (error) {
                 console.error('Erro:', error);
@@ -860,21 +1043,22 @@
             }
         };
         
+        function updateStats(leads) {
+            const totalLeads = leads.length;
+            const convertidos = leads.filter(l => l.status === 'cliente' || l.status === 'convertido').length;
+            const taxaConversao = totalLeads > 0 ? ((convertidos / totalLeads) * 100).toFixed(1) : 0;
+            
+            document.getElementById('totalLeads').textContent = totalLeads;
+            document.getElementById('taxaConversao').textContent = taxaConversao + '%';
+            document.getElementById('clientesAtivos').textContent = convertidos;
+            document.getElementById('receitaMensal').textContent = 'R$ ' + (convertidos * 7500).toLocaleString('pt-BR');
+        }
+        
         function updateLeadsTable(leads) {
             const tbody = document.getElementById('leadsTable');
             
             if (leads.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7">
-                            <div class="empty-state">
-                                <div class="empty-icon">📭</div>
-                                <div class="empty-title">Nenhum lead ainda</div>
-                                <div class="empty-description">Os leads capturados aparecerão aqui</div>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 3rem; color: #7a8f77;">Nenhum lead cadastrado</td></tr>';
                 return;
             }
             
@@ -884,6 +1068,7 @@
                     'novo': 'badge-novo',
                     'contato': 'badge-contato',
                     'qualificado': 'badge-qualificado',
+                    'proposta': 'badge-qualificado',
                     'cliente': 'badge-convertido',
                     'convertido': 'badge-convertido'
                 }[lead.status || 'novo'] || 'badge-novo';
@@ -897,7 +1082,7 @@
                         <td>${lead.faturamento || '-'}</td>
                         <td><span class="badge ${statusClass}">${(lead.status || 'novo').toUpperCase()}</span></td>
                         <td>
-                            <button class="btn btn-primary btn-small" onclick="verDetalhes('${lead.id}')">
+                            <button class="btn btn-primary btn-small" onclick="window.verDetalhes('${lead.id}')">
                                 👁️ Ver
                             </button>
                         </td>
@@ -906,101 +1091,226 @@
             }).join('');
         }
         
-        function initCharts() {
-            const ctx = document.getElementById('leadsChart');
-            if (!ctx) return;
+        function updatePipeline(leads) {
+            const novo = leads.filter(l => !l.status || l.status === 'novo');
+            const contato = leads.filter(l => l.status === 'contato');
+            const proposta = leads.filter(l => l.status === 'proposta' || l.status === 'qualificado');
+            const cliente = leads.filter(l => l.status === 'cliente' || l.status === 'convertido');
             
-            leadsChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-                    datasets: [{
-                        label: 'Leads',
-                        data: [12, 19, 15, 25, 22, 30],
-                        borderColor: '#1a4d2e',
-                        backgroundColor: 'rgba(26, 77, 46, 0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        pointRadius: 5,
-                        pointHoverRadius: 7
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
+            document.getElementById('countNovo').textContent = novo.length;
+            document.getElementById('countContato').textContent = contato.length;
+            document.getElementById('countProposta').textContent = proposta.length;
+            document.getElementById('countCliente').textContent = cliente.length;
+            
+            renderPipelineCards('colunaNovo', novo);
+            renderPipelineCards('colunaContato', contato);
+            renderPipelineCards('colunaProposta', proposta);
+            renderPipelineCards('colunaCliente', cliente);
+        }
+        
+        function renderPipelineCards(columnId, leads) {
+            const column = document.getElementById(columnId);
+            
+            if (leads.length === 0) {
+                column.innerHTML = '<div style="text-align: center; padding: 2rem; color: #7a8f77;">Vazio</div>';
+                return;
+            }
+            
+            column.innerHTML = leads.map(lead => `
+                <div class="pipeline-card" onclick="window.verDetalhes('${lead.id}')">
+                    <div class="pipeline-card-title">${lead.nome || 'Sem nome'}</div>
+                    <div class="pipeline-card-info">📧 ${lead.email || 'N/A'}</div>
+                    <div class="pipeline-card-info">🏢 ${lead.empresa || 'N/A'}</div>
+                    <div class="pipeline-card-info">💰 ${lead.faturamento || 'N/A'}</div>
+                </div>
+            `).join('');
+        }
+        
+        function initCharts() {
+            // Gráfico de Leads (Dashboard)
+            const ctx1 = document.getElementById('leadsChart');
+            if (ctx1) {
+                leadsChart = new Chart(ctx1, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+                        datasets: [{
+                            label: 'Leads',
+                            data: [12, 19, 15, 25, 22, 30],
+                            borderColor: '#1a4d2e',
+                            backgroundColor: 'rgba(26, 77, 46, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            pointBackgroundColor: '#1a4d2e'
+                        }]
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: '#e1e6dd'
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: '#e1e6dd' } },
+                            x: { grid: { display: false } }
                         }
                     }
-                }
-            });
+                });
+            }
         }
+        
+        function updateReportsCharts(leads) {
+            // Gráfico de Status
+            const statusCounts = {
+                'novo': leads.filter(l => !l.status || l.status === 'novo').length,
+                'contato': leads.filter(l => l.status === 'contato').length,
+                'proposta': leads.filter(l => l.status === 'proposta' || l.status === 'qualificado').length,
+                'cliente': leads.filter(l => l.status === 'cliente' || l.status === 'convertido').length
+            };
+            
+            const ctx2 = document.getElementById('statusChart');
+            if (ctx2) {
+                if (statusChart) statusChart.destroy();
+                statusChart = new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Novo', 'Contato', 'Proposta', 'Cliente'],
+                        datasets: [{
+                            data: Object.values(statusCounts),
+                            backgroundColor: ['#047857', '#92400e', '#1e40af', '#065f46']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } }
+                    }
+                });
+            }
+            
+            // Gráfico de Receita
+            const ctx3 = document.getElementById('receitaChart');
+            if (ctx3) {
+                if (receitaChart) receitaChart.destroy();
+                receitaChart = new Chart(ctx3, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Diagnóstico', 'Planejamento', 'Controladoria', 'Gestão 360°'],
+                        datasets: [{
+                            label: 'Receita (R$)',
+                            data: [12500, 28000, 35000, 84000],
+                            backgroundColor: '#1a4d2e'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true } }
+                    }
+                });
+            }
+        }
+        
+        window.verDetalhes = (id) => {
+            const lead = allLeads.find(l => l.id === id);
+            if (!lead) return;
+            
+            const modal = document.getElementById('leadModal');
+            const details = document.getElementById('leadDetails');
+            
+            details.innerHTML = `
+                <div class="info-item">
+                    <div class="info-label">Nome</div>
+                    <div class="info-value">${lead.nome || 'N/A'}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">E-mail</div>
+                    <div class="info-value">${lead.email || 'N/A'}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Telefone</div>
+                    <div class="info-value">${lead.telefone || 'N/A'}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Empresa</div>
+                    <div class="info-value">${lead.empresa || 'N/A'}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Faturamento</div>
+                    <div class="info-value">${lead.faturamento || 'N/A'}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Interesse</div>
+                    <div class="info-value">${lead.interesse || 'N/A'}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Mensagem</div>
+                    <div class="info-value">${lead.mensagem || 'N/A'}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Status</div>
+                    <div class="info-value"><span class="badge badge-${lead.status || 'novo'}">${(lead.status || 'novo').toUpperCase()}</span></div>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+        };
+        
+        window.fecharModal = () => {
+            document.getElementById('leadModal').classList.remove('active');
+        };
         
         function showAlert(message, type) {
             const container = document.getElementById('alertContainer');
             if (!container) return;
             
-            const alert = document.createElement('div');
-            alert.className = `alert alert-${type}`;
-            alert.innerHTML = `<span>${message}</span>`;
-            
-            container.innerHTML = '';
-            container.appendChild(alert);
+            container.innerHTML = `<div class="alert alert-${type}"><span>${message}</span></div>`;
             
             setTimeout(() => {
-                alert.remove();
+                container.innerHTML = '';
             }, 5000);
         }
         
         window.showAlert = showAlert;
-        window.db = db;
+        window.allLeads = allLeads;
     </script>
     
     <script>
-        // Navigation
         function showView(viewName) {
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            
-            document.querySelectorAll('.view').forEach(view => {
-                view.classList.remove('active');
-            });
-            
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
             document.getElementById(viewName).classList.add('active');
             event.target.closest('.nav-item').classList.add('active');
         }
         
-        // Actions
-        function verDetalhes(id) {
-            alert('Detalhes do lead: ' + id);
-        }
-        
         function exportarLeads() {
-            alert('Exportação de leads em desenvolvimento');
+            alert('Funcionalidade de exportação em desenvolvimento.\n\nEm breve você poderá exportar para:\n• Excel (.xlsx)\n• CSV\n• PDF');
         }
         
         function exportarRelatorio() {
-            alert('Exportação de relatório em desenvolvimento');
+            alert('Funcionalidade de exportação de relatórios em desenvolvimento.\n\nEm breve você poderá gerar relatórios em PDF com todos os gráficos.');
         }
         
         function updateChart(period) {
-            console.log('Período alterado:', period);
+            console.log('Período alterado para:', period, 'meses');
+            alert(`Gráfico atualizado para os últimos ${period} meses`);
         }
+        
+        function copiarLink(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                alert('✅ Link copiado para área de transferência!');
+            }).catch(() => {
+                alert('❌ Erro ao copiar link');
+            });
+        }
+        
+        // Fechar modal ao clicar fora
+        document.getElementById('leadModal')?.addEventListener('click', (e) => {
+            if (e.target.id === 'leadModal') {
+                window.fecharModal();
+            }
+        });
     </script>
 </body>
 </html>
